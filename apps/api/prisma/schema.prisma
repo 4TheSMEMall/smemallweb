@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")   // pooler — used by the app at runtime
+  directUrl = env("DIRECT_URL")     // direct — used by prisma migrate only
+}
+
+enum UserRole {
+  BUSINESS_OWNER
+  ADMIN
+  PARTNER
+  CONSULTANT
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+}
+
+model User {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  passwordHash String      @map("password_hash")
+  firstName    String      @map("first_name")
+  lastName     String      @map("last_name")
+  role         UserRole
+  status       UserStatus  @default(ACTIVE)
+  phone        String?
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  bhcResults   BhcResult[]
+
+  @@map("users")
+}
+
+// Stores every BHC assessment a user completes.
+// assessment_id is BHC's own UUID — we use it to proxy PDF requests
+// back to BHC's report endpoint on demand (no stored PDF URL needed).
+model BhcResult {
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
+  assessmentId  String   @unique @map("assessment_id") // BHC's UUID
+  score         Int
+  maxScore      Int      @map("max_score")
+  percentage    Int      // 0–100
+  status        String   // "Critical" | "Fair" | "Good" | "Excellent"
+  sectionScores Json     @map("section_scores") // JSONB — array of { name, score, max_score, percentage }
+  completedAt   DateTime @map("completed_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  user          User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("bhc_results")
+}
