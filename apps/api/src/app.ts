@@ -1,6 +1,7 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import { prisma } from "./infrastructure/database/prisma.client";
 import { PrismaUserRepository } from "./infrastructure/repositories/PrismaUserRepository";
 import { PrismaBhcResultRepository } from "./infrastructure/repositories/PrismaBhcResultRepository";
@@ -66,13 +67,23 @@ export function createApp(): Express {
   }));
   app.use(express.json());
 
+  // Brute-force protection on auth endpoints
+  // Max 10 login/register attempts per IP per 15 minutes
+  const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: { success: false, message: "Too many attempts. Please try again in 15 minutes." },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
   app.get("/health", (_req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
   });
 
   // Webhooks use raw body parsing (handled inside the router)
   app.use("/api/webhooks", createWebhookRouter(webhookController));
-  app.use("/api/auth",     createAuthRouter(authController, authenticate));
+  app.use("/api/auth",     authLimiter, createAuthRouter(authController, authenticate));
   app.use("/api/bhc",      createBhcRouter(bhcController, authenticate));
 
   app.use(errorHandler);

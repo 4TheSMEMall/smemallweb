@@ -46,6 +46,15 @@ export class BhcController {
   downloadReport = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { assessmentId } = req.params;
+
+      // Verify this assessment belongs to the requesting user before proxying
+      const owned = await this.getHistoryUseCase.execute(req.user!.sub);
+      const belongs = owned.history.some((r) => r.assessmentId === assessmentId);
+      if (!belongs) {
+        res.status(403).json({ success: false, message: "Forbidden" });
+        return;
+      }
+
       const bhcUrl = `${this.bhcApiUrl}/assessments/${assessmentId}/report`;
 
       const upstream = await fetch(bhcUrl, {
