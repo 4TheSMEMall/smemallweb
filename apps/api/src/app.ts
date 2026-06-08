@@ -65,10 +65,20 @@ export function createApp(): Express {
     origin: process.env.CLIENT_URL ?? "http://localhost:3000",
     credentials: true,
   }));
+
+  app.get("/health", (_req, res) => {
+    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
+  // Webhooks MUST be registered before express.json() — the raw body
+  // capture middleware reads the stream directly. express.json() would
+  // consume it first and leave nothing for HMAC signature verification.
+  app.use("/api/webhooks", createWebhookRouter(webhookController));
+
+  // All other routes use JSON parsing
   app.use(express.json());
 
-  // Brute-force protection on auth endpoints
-  // Max 10 login/register attempts per IP per 15 minutes
+  // Brute-force protection — max 10 auth attempts per IP per 15 minutes
   const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 10,
@@ -77,12 +87,6 @@ export function createApp(): Express {
     legacyHeaders: false,
   });
 
-  app.get("/health", (_req, res) => {
-    res.json({ status: "ok", timestamp: new Date().toISOString() });
-  });
-
-  // Webhooks use raw body parsing (handled inside the router)
-  app.use("/api/webhooks", createWebhookRouter(webhookController));
   app.use("/api/auth",     authLimiter, createAuthRouter(authController, authenticate));
   app.use("/api/bhc",      createBhcRouter(bhcController, authenticate));
 
