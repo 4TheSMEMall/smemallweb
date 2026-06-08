@@ -10,6 +10,7 @@ export function createBhcRouter(
   // All BHC routes require a logged-in user
   router.use(authenticate);
 
+  router.get("/launch-token",                    controller.getLaunchToken);
   router.get("/history",                        controller.getHistory);
   router.get("/results/:assessmentId/report",   controller.downloadReport);
 

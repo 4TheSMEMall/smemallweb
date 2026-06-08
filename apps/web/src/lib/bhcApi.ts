@@ -26,14 +26,27 @@ export interface BhcHistory {
   totalAssessments: number;
 }
 
+const BHC_BASE_URL = process.env.NEXT_PUBLIC_BHC_URL ?? "https://bhctestt.com";
+
 export const bhcApi = {
   getHistory: () =>
     api.get<ApiResponse<BhcHistory>>("/bhc/history"),
 
   downloadReport: (assessmentId: string) =>
-    api.get(`/bhc/results/${assessmentId}/report`, {
-      responseType: "blob",
-    }),
+    api.get(`/bhc/results/${assessmentId}/report`, { responseType: "blob" }),
+
+  /**
+   * Gets a signed launch token then opens BHC with the token in the URL.
+   * BHC reads the token, verifies it, and pre-fills the user's email.
+   */
+  launchTest: async () => {
+    const res = await api.get<ApiResponse<{ token: string }>>("/bhc/launch-token");
+    const token = res.data.data?.token;
+    const url = token
+      ? `${BHC_BASE_URL}/start?token=${token}`
+      : `${BHC_BASE_URL}/start`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  },
 };
 
 export function statusColor(status: string): string {

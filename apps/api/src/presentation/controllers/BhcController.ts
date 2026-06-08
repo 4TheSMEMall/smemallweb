@@ -1,16 +1,34 @@
 import type { Request, Response, NextFunction } from "express";
 import type { GetBhcHistoryUseCase } from "../../application/use-cases/bhc/GetBhcHistoryUseCase";
+import type { GenerateBhcLaunchTokenUseCase } from "../../application/use-cases/bhc/GenerateBhcLaunchTokenUseCase";
 import type { ApiResponse } from "@sme-mall/shared";
 
 export class BhcController {
   constructor(
     private readonly getHistoryUseCase: GetBhcHistoryUseCase,
+    private readonly generateLaunchTokenUseCase: GenerateBhcLaunchTokenUseCase,
     private readonly bhcApiUrl: string
   ) {}
 
   /**
+   * GET /api/bhc/launch-token
+   * Returns a short-lived signed JWT the BHC app uses to identify the user.
+   * BHC reads it from the URL → pre-fills email → user skips the email field.
+   */
+  getLaunchToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const token = this.generateLaunchTokenUseCase.execute(
+        req.user!.sub,
+        req.user!.email
+      );
+      res.json({ success: true, data: { token } } satisfies ApiResponse<{ token: string }>);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  /**
    * GET /api/bhc/history
-   * Returns the logged-in user's full BHC assessment history.
    */
   getHistory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -23,9 +41,7 @@ export class BhcController {
 
   /**
    * GET /api/bhc/results/:assessmentId/report
-   * Proxies the PDF report from BHC's API and streams it to the browser.
-   * We never store the PDF — we always fetch it fresh from BHC on demand.
-   * The assessmentId stored in our DB is the key that unlocks the PDF.
+   * Proxies the PDF report from BHC's API on demand — nothing stored here.
    */
   downloadReport = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -38,19 +54,13 @@ export class BhcController {
       });
 
       if (!upstream.ok) {
-        res.status(upstream.status).json({
-          success: false,
-          message: "Report not available from BHC",
-        });
+        res.status(upstream.status).json({ success: false, message: "Report not available from BHC" });
         return;
       }
 
-      // Forward BHC's content headers and stream the PDF buffer
       res.setHeader("Content-Type",        "application/pdf");
       res.setHeader("Content-Disposition", `attachment; filename="bhc-report-${assessmentId}.pdf"`);
-
-      const buffer = await upstream.arrayBuffer();
-      res.send(Buffer.from(buffer));
+      res.send(Buffer.from(await upstream.arrayBuffer()));
     } catch (err) {
       next(err);
     }

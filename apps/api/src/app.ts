@@ -11,6 +11,7 @@ import { LoginUseCase } from "./application/use-cases/auth/LoginUseCase";
 import { GetMeUseCase } from "./application/use-cases/auth/GetMeUseCase";
 import { SaveBhcResultUseCase } from "./application/use-cases/bhc/SaveBhcResultUseCase";
 import { GetBhcHistoryUseCase } from "./application/use-cases/bhc/GetBhcHistoryUseCase";
+import { GenerateBhcLaunchTokenUseCase } from "./application/use-cases/bhc/GenerateBhcLaunchTokenUseCase";
 import { AuthController } from "./presentation/controllers/AuthController";
 import { WebhookController } from "./presentation/controllers/WebhookController";
 import { BhcController } from "./presentation/controllers/BhcController";
@@ -34,8 +35,11 @@ export function createApp(): Express {
   const registerUseCase    = new RegisterUseCase(userRepo, passwordService, tokenService);
   const loginUseCase       = new LoginUseCase(userRepo, passwordService, tokenService);
   const getMeUseCase       = new GetMeUseCase(userRepo);
-  const saveBhcResultUseCase  = new SaveBhcResultUseCase(bhcResultRepo, userRepo);
-  const getBhcHistoryUseCase  = new GetBhcHistoryUseCase(bhcResultRepo);
+  const saveBhcResultUseCase       = new SaveBhcResultUseCase(bhcResultRepo, userRepo);
+  const getBhcHistoryUseCase       = new GetBhcHistoryUseCase(bhcResultRepo);
+  const generateBhcLaunchTokenUseCase = new GenerateBhcLaunchTokenUseCase(
+    process.env.BHC_WEBHOOK_SECRET ?? "change-me"
+  );
 
   // ── Controllers ──────────────────────────────────────────────
   const authController    = new AuthController(registerUseCase, loginUseCase, getMeUseCase);
@@ -45,6 +49,7 @@ export function createApp(): Express {
   );
   const bhcController = new BhcController(
     getBhcHistoryUseCase,
+    generateBhcLaunchTokenUseCase,
     process.env.BHC_API_URL ?? "https://bhcdemo-production.up.railway.app/api/v1"
   );
 

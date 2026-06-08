@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -12,10 +12,6 @@ import {
   type BhcResult,
   type SectionScore,
 } from "@/lib/bhcApi";
-
-const BHC_TEST_URL = process.env.NEXT_PUBLIC_BHC_URL
-  ? `${process.env.NEXT_PUBLIC_BHC_URL}/start`
-  : "https://bhctestt.com/start";
 
 const INTRO_SEEN_KEY = "bhc_intro_seen";
 
@@ -43,8 +39,21 @@ const improvementTips: Record<string, string[]> = {
 };
 
 export default function BhcPage() {
-  const [showIntro, setShowIntro]   = useState(false);
-  const [downloading, setDownloading] = useState<string | null>(null);
+  const [showIntro, setShowIntro]       = useState(false);
+  const [downloading, setDownloading]   = useState<string | null>(null);
+  const [launching, setLaunching]       = useState(false);
+
+  const handleLaunch = useCallback(async (closeFn?: () => void) => {
+    setLaunching(true);
+    try {
+      await bhcApi.launchTest();
+      closeFn?.();
+    } catch {
+      alert("Could not launch BHC. Please try again.");
+    } finally {
+      setLaunching(false);
+    }
+  }, []);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["bhc-history"],
@@ -154,15 +163,16 @@ export default function BhcPage() {
 
               {/* Actions */}
               <div className="p-6 flex items-center gap-3">
-                <a
-                  href={BHC_TEST_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={dismissIntro}
-                  className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 rounded-xl text-center transition-all hover:shadow-lg text-sm"
+                <button
+                  onClick={() => handleLaunch(dismissIntro)}
+                  disabled={launching}
+                  className="flex-1 bg-red-500 hover:bg-red-600 disabled:opacity-60 text-white font-bold py-3.5 rounded-xl text-center transition-all hover:shadow-lg text-sm flex items-center justify-center gap-2"
                 >
-                  Take the Test →
-                </a>
+                  {launching
+                    ? <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Launching…</>
+                    : "Take the Test →"
+                  }
+                </button>
                 <button
                   onClick={dismissIntro}
                   className="px-5 py-3.5 border border-gray-200 hover:border-gray-300 text-gray-600 hover:text-navy-900 font-semibold rounded-xl transition-colors text-sm"
@@ -193,17 +203,16 @@ export default function BhcPage() {
                 About BHC
               </button>
             )}
-            <a
-              href={BHC_TEST_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all hover:shadow-lg hover:-translate-y-0.5"
+            <button
+              onClick={() => handleLaunch()}
+              disabled={launching}
+              className="inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 disabled:opacity-60 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all hover:shadow-lg hover:-translate-y-0.5"
             >
-              {latest ? "Retake Assessment" : "Take Assessment"}
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-              </svg>
-            </a>
+              {launching
+                ? <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Launching…</>
+                : <>{latest ? "Retake Assessment" : "Take Assessment"}<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg></>
+              }
+            </button>
           </div>
         </div>
 
@@ -234,14 +243,13 @@ export default function BhcPage() {
             <p className="text-gray-500 text-sm max-w-sm mx-auto mb-6">
               Find out exactly where your business stands and what lenders look for before approving a loan.
             </p>
-            <a
-              href={BHC_TEST_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 bg-navy-900 hover:bg-red-500 text-white font-bold px-6 py-3 rounded-xl transition-all"
+            <button
+              onClick={() => handleLaunch()}
+              disabled={launching}
+              className="inline-flex items-center gap-2 bg-navy-900 hover:bg-red-500 disabled:opacity-60 text-white font-bold px-6 py-3 rounded-xl transition-all"
             >
-              Start free assessment →
-            </a>
+              {launching ? "Launching…" : "Start free assessment →"}
+            </button>
           </div>
         )}
 
