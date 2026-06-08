@@ -46,9 +46,9 @@ export default function BusinessOwnerDashboard() {
               Complete your Business Health Check to get matched with lenders and unlock your full dashboard.
             </p>
             <div className="mt-5 flex items-center gap-3">
-              <button className="bg-red-500 hover:bg-red-600 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all hover:shadow-lg hover:-translate-y-0.5">
-                Start BHC Assessment →
-              </button>
+              <Link href="/dashboard/bhc" className="bg-red-500 hover:bg-red-600 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all hover:shadow-lg hover:-translate-y-0.5 inline-block">
+                {bhcData?.latest ? "View BHC Score →" : "Start BHC Assessment →"}
+              </Link>
               <div className="flex items-center gap-2 text-xs text-gray-500">
                 <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
                 Takes ~5 minutes
@@ -99,13 +99,14 @@ export default function BusinessOwnerDashboard() {
           </div>
           <div className="grid md:grid-cols-3 gap-4">
             {[
-              { ...SERVICES[0], gradient: "from-blue-600 to-indigo-700",    emoji: "📋" },
-              { ...SERVICES[1], gradient: "from-emerald-500 to-teal-600",   emoji: "📈" },
-              { ...SERVICES[2], gradient: "from-purple-500 to-pink-600",    emoji: "🌱" },
+              { ...SERVICES[0], gradient: "from-blue-600 to-indigo-700",  emoji: "📋", href: "/dashboard/bhc" },
+              { ...SERVICES[1], gradient: "from-emerald-500 to-teal-600", emoji: "📈", href: "/dashboard/sme-paddy" },
+              { ...SERVICES[2], gradient: "from-purple-500 to-pink-600",  emoji: "🌱", href: "/dashboard/wibg" },
             ].map((s) => (
-              <div
+              <Link
                 key={s.id}
-                className="group relative bg-white rounded-2xl border border-gray-100 shadow-card hover:shadow-card-hover overflow-hidden transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                href={s.href}
+                className="group relative bg-white rounded-2xl border border-gray-100 shadow-card hover:shadow-card-hover overflow-hidden transition-all duration-300 hover:-translate-y-1 block"
               >
                 <div className={`h-1.5 w-full bg-gradient-to-r ${s.gradient}`} />
                 <div className="p-5">
@@ -117,14 +118,14 @@ export default function BusinessOwnerDashboard() {
                   </div>
                   <h3 className="font-bold text-navy-900 text-sm mb-1 leading-tight">{s.name}</h3>
                   <p className="text-gray-400 text-xs mb-4 leading-relaxed">{s.description}</p>
-                  <button className="flex items-center gap-1.5 text-xs font-bold text-navy-900 group-hover:text-red-500 transition-colors">
+                  <span className="flex items-center gap-1.5 text-xs font-bold text-navy-900 group-hover:text-red-500 transition-colors">
                     Open service
                     <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                     </svg>
-                  </button>
+                  </span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
