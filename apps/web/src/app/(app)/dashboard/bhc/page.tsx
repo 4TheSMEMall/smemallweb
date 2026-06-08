@@ -58,6 +58,8 @@ export default function BhcPage() {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["bhc-history"],
     queryFn:  () => bhcApi.getHistory().then((r) => r.data.data!),
+    refetchOnWindowFocus: true,   // re-fetch when user returns from bhctestt.com tab
+    staleTime: 0,                 // always treat as stale so it refetches on return
   });
 
   // Show intro modal on first ever visit OR if no assessments yet
