@@ -12,6 +12,11 @@ import {
   type BhcResult,
   type SectionScore,
 } from "@/lib/bhcApi";
+import { BhcTrendChart }       from "./components/BhcTrendChart";
+import { BhcActionPlan }       from "./components/BhcActionPlan";
+import { BhcExpiryBadge }      from "./components/BhcExpiryBadge";
+import { BhcConsultantPrompt } from "./components/BhcConsultantPrompt";
+import { BhcLenderPanel }      from "./components/BhcLenderPanel";
 
 const INTRO_SEEN_KEY = "bhc_intro_seen";
 
@@ -346,6 +351,31 @@ export default function BhcPage() {
                 </div>
               </div>
             </div>
+
+            {/* ── Expiry badge ──────────────────────────────── */}
+            <BhcExpiryBadge
+              completedAt={latest.completedAt}
+              onRetake={() => handleLaunch()}
+            />
+
+            {/* ── Lender matching panel ─────────────────────── */}
+            <BhcLenderPanel percentage={latest.percentage} />
+
+            {/* ── Score trend chart ─────────────────────────── */}
+            <BhcTrendChart history={history} />
+
+            {/* ── Consultant prompt ─────────────────────────── */}
+            <BhcConsultantPrompt
+              percentage={latest.percentage}
+              status={latest.status}
+            />
+
+            {/* ── 90-day action plan ────────────────────────── */}
+            <BhcActionPlan
+              assessmentId={latest.assessmentId}
+              sectionScores={latest.sectionScores}
+              percentage={latest.percentage}
+            />
 
             {/* ── Improvement tips ──────────────────────────── */}
             {weakSections.length > 0 && (
