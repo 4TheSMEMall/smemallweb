@@ -1,0 +1,12 @@
+[build]
+  base    = "."
+  command = "corepack enable && corepack prepare pnpm@11.5.2 --activate && pnpm install --frozen-lockfile && pnpm --filter @sme-mall/web build"
+  publish = "apps/web/.next"
+
+[build.environment]
+  NODE_VERSION  = "22"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# Next.js requires the Netlify adapter for SSR / server components
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
