@@ -2,6 +2,8 @@
   base    = "."
   command = "corepack enable && corepack prepare pnpm@11.5.2 --activate && pnpm install --frozen-lockfile && pnpm --filter @sme-mall/web build"
   publish = "apps/web/.next"
+  # Skip Netlify rebuild if only API or non-web files changed
+  ignore  = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- apps/web/ packages/ netlify.toml"
 
 [build.environment]
   NODE_VERSION  = "22"
