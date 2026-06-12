@@ -35,10 +35,10 @@ export function BhcConsultantPrompt({ percentage, status }: Props) {
               : `You're ${70 - percentage} points away from unlocking our lender partners. A focused 1–2 hour advisory session on your weakest sections can bridge that gap faster than working alone.`
             }
           </p>
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-wrap">
             <Link
               href="/consultant"
-              className={`inline-flex items-center gap-2 text-sm font-bold px-4 py-2.5 rounded-xl transition-all ${
+              className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm font-bold px-4 py-2.5 rounded-xl transition-all ${
                 isLow
                   ? "bg-red-500 hover:bg-red-600 text-white"
                   : "bg-amber-500 hover:bg-amber-600 text-white"

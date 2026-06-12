@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { SERVICES } from "@sme-mall/shared";
-import { bhcApi, statusColor, statusBarColor } from "@/lib/bhcApi";
+import { bhcApi, statusColor } from "@/lib/bhcApi";
 
 const navItems = [
   { label: "Dashboard",   path: "/dashboard",         icon: <GridIcon /> },
@@ -34,7 +34,7 @@ export default function BusinessOwnerDashboard() {
       <div className="max-w-5xl space-y-8">
 
         {/* ── Welcome banner ── */}
-        <div className="relative bg-navy-900 rounded-3xl p-8 overflow-hidden">
+        <div className="relative bg-navy-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 overflow-hidden">
           <div className="absolute inset-0 bg-dots opacity-20" />
           <div className="absolute right-0 top-0 w-64 h-full bg-gradient-radial from-red-500/20 via-transparent to-transparent pointer-events-none" />
           <div className="relative">
@@ -58,7 +58,7 @@ export default function BusinessOwnerDashboard() {
         </div>
 
         {/* ── Stats ── */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {/* BHC Score — live from API, links to full history */}
           <Link
             href="/dashboard/bhc"
@@ -97,7 +97,7 @@ export default function BusinessOwnerDashboard() {
             <h2 className="text-lg font-extrabold text-navy-900">Your Services</h2>
             <span className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full font-medium">3 available</span>
           </div>
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
               { ...SERVICES[0], gradient: "from-blue-600 to-indigo-700",  emoji: "📋", href: "/dashboard/bhc" },
               { ...SERVICES[1], gradient: "from-emerald-500 to-teal-600", emoji: "📈", href: "/dashboard/sme-paddy" },

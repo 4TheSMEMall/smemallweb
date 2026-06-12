@@ -108,7 +108,7 @@ export default function BhcPage() {
 
   return (
     <DashboardLayout navItems={navItems}>
-      <div className="max-w-4xl space-y-8">
+      <div className="max-w-4xl w-full space-y-6 sm:space-y-8">
 
         {/* ── Intro Modal ───────────────────────────────────── */}
         {showIntro && (
@@ -142,7 +142,7 @@ export default function BhcPage() {
               </div>
 
               {/* Features grid */}
-              <div className="p-6 grid grid-cols-2 gap-4">
+              <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {bhcFeatures.map((f) => (
                   <div key={f.title} className="flex items-start gap-3 p-3 rounded-xl bg-gray-50">
                     <span className="text-2xl flex-shrink-0">{f.icon}</span>
@@ -169,11 +169,11 @@ export default function BhcPage() {
               </div>
 
               {/* Actions */}
-              <div className="p-6 flex items-center gap-3">
+              <div className="p-6 flex flex-col sm:flex-row items-center gap-3">
                 <button
                   onClick={() => handleLaunch(dismissIntro)}
                   disabled={launching}
-                  className="flex-1 bg-red-500 hover:bg-red-600 disabled:opacity-60 text-white font-bold py-3.5 rounded-xl text-center transition-all hover:shadow-lg text-sm flex items-center justify-center gap-2"
+                  className="w-full sm:flex-1 bg-red-500 hover:bg-red-600 disabled:opacity-60 text-white font-bold py-3.5 rounded-xl text-center transition-all hover:shadow-lg text-sm flex items-center justify-center gap-2"
                 >
                   {launching
                     ? <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Launching…</>
@@ -182,7 +182,7 @@ export default function BhcPage() {
                 </button>
                 <button
                   onClick={dismissIntro}
-                  className="px-5 py-3.5 border border-gray-200 hover:border-gray-300 text-gray-600 hover:text-navy-900 font-semibold rounded-xl transition-colors text-sm"
+                  className="w-full sm:w-auto px-5 py-3.5 border border-gray-200 hover:border-gray-300 text-gray-600 hover:text-navy-900 font-semibold rounded-xl transition-colors text-sm"
                 >
                   Maybe later
                 </button>
@@ -192,9 +192,9 @@ export default function BhcPage() {
         )}
 
         {/* ── Page header ───────────────────────────────────── */}
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-extrabold text-navy-900">Business Health Checker</h1>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-navy-900">Business Health Checker</h1>
             <p className="text-gray-500 text-sm mt-1">
               {latest
                 ? `${data!.totalAssessments} assessment${data!.totalAssessments > 1 ? "s" : ""} completed`
@@ -268,10 +268,10 @@ export default function BhcPage() {
             {/* ── Score card ────────────────────────────────── */}
             <div className="bg-white rounded-3xl shadow-card border border-gray-100 overflow-hidden">
               <div className="bg-navy-900 p-6">
-                <div className="flex items-start justify-between mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
                   <div>
                     <p className="text-gray-400 text-xs font-medium uppercase tracking-widest mb-1">Latest Score</p>
-                    <div className="flex items-end gap-2">
+                    <div className="flex items-end gap-2 flex-wrap">
                       <span className="text-5xl font-extrabold text-white">{latest.percentage}</span>
                       <span className="text-gray-400 text-xl mb-1">/100</span>
                       {scoreChange !== null && (
@@ -285,7 +285,7 @@ export default function BhcPage() {
                       )}
                     </div>
                   </div>
-                  <span className={`px-4 py-2 rounded-full border text-sm font-bold ${statusColor(latest.status)}`}>
+                  <span className={`self-start px-4 py-2 rounded-full border text-sm font-bold ${statusColor(latest.status)}`}>
                     {latest.status}
                   </span>
                 </div>
@@ -303,7 +303,7 @@ export default function BhcPage() {
               {/* Section breakdown */}
               <div className="p-6">
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Section Scores</p>
-                <div className="grid sm:grid-cols-2 gap-3 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                   {latest.sectionScores.map((s) => {
                     const isWeak = weakSections.some((w) => w.name === s.name);
                     return (
@@ -331,7 +331,7 @@ export default function BhcPage() {
                   })}
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-gray-100">
                   <p className="text-xs text-gray-400">
                     Completed {new Date(latest.completedAt).toLocaleDateString("en-NG", {
                       day: "numeric", month: "long", year: "numeric",
@@ -412,7 +412,7 @@ export default function BhcPage() {
                     );
                   })}
                 </div>
-                <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3">
+                <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center gap-3">
                   <p className="text-xs text-gray-400 flex-1">
                     Want personalised guidance? Book a session with a certified consultant.
                   </p>
@@ -432,43 +432,45 @@ export default function BhcPage() {
                 <h2 className="text-lg font-extrabold text-navy-900 mb-4">Assessment History</h2>
                 <div className="space-y-3">
                   {history.map((result, i) => (
-                    <div key={result.id} className="bg-white rounded-2xl shadow-card border border-gray-100 p-5 flex items-center gap-4">
-                      <div className="w-12 h-12 bg-navy-900 rounded-xl flex items-center justify-center flex-shrink-0 relative">
-                        <span className="text-white font-extrabold text-sm">{result.percentage}</span>
-                        {i === 0 && (
-                          <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold px-1 py-0.5 rounded-full">
-                            Latest
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${statusColor(result.status)}`}>
-                            {result.status}
-                          </span>
-                          {i > 0 && history[i - 1] && (
-                            <span className={`text-xs font-semibold ${
-                              result.percentage > history[i - 1].percentage ? "text-emerald-500" :
-                              result.percentage < history[i - 1].percentage ? "text-red-500" : "text-gray-400"
-                            }`}>
-                              {result.percentage > history[i - 1].percentage ? "▲" : result.percentage < history[i - 1].percentage ? "▼" : "→"}
-                              {" "}{Math.abs(result.percentage - history[i - 1].percentage)} pts
+                    <div key={result.id} className="bg-white rounded-2xl shadow-card border border-gray-100 p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+                      <div className="flex items-center gap-4 flex-1 min-w-0">
+                        <div className="w-12 h-12 bg-navy-900 rounded-xl flex items-center justify-center flex-shrink-0 relative">
+                          <span className="text-white font-extrabold text-sm">{result.percentage}</span>
+                          {i === 0 && (
+                            <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold px-1 py-0.5 rounded-full">
+                              Latest
                             </span>
                           )}
-                          <span className="text-xs text-gray-400">
-                            {new Date(result.completedAt).toLocaleDateString("en-NG", {
-                              day: "numeric", month: "short", year: "numeric",
-                            })}
-                          </span>
                         </div>
-                        <div className="h-1 bg-gray-100 rounded-full overflow-hidden w-48">
-                          <div className={`h-full rounded-full ${statusBarColor(result.status)}`} style={{ width: `${result.percentage}%` }} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${statusColor(result.status)}`}>
+                              {result.status}
+                            </span>
+                            {i > 0 && history[i - 1] && (
+                              <span className={`text-xs font-semibold ${
+                                result.percentage > history[i - 1].percentage ? "text-emerald-500" :
+                                result.percentage < history[i - 1].percentage ? "text-red-500" : "text-gray-400"
+                              }`}>
+                                {result.percentage > history[i - 1].percentage ? "▲" : result.percentage < history[i - 1].percentage ? "▼" : "→"}
+                                {" "}{Math.abs(result.percentage - history[i - 1].percentage)} pts
+                              </span>
+                            )}
+                            <span className="text-xs text-gray-400">
+                              {new Date(result.completedAt).toLocaleDateString("en-NG", {
+                                day: "numeric", month: "short", year: "numeric",
+                              })}
+                            </span>
+                          </div>
+                          <div className="h-1 bg-gray-100 rounded-full overflow-hidden w-full sm:w-48">
+                            <div className={`h-full rounded-full ${statusBarColor(result.status)}`} style={{ width: `${result.percentage}%` }} />
+                          </div>
                         </div>
                       </div>
                       <button
                         onClick={() => handleDownload(result)}
                         disabled={downloading === result.assessmentId}
-                        className="flex-shrink-0 flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-navy-900 transition-colors disabled:opacity-50 border border-gray-200 hover:border-gray-300 px-3 py-2 rounded-lg"
+                        className="self-end sm:self-auto flex-shrink-0 flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-navy-900 transition-colors disabled:opacity-50 border border-gray-200 hover:border-gray-300 px-3 py-2 rounded-lg"
                       >
                         {downloading === result.assessmentId
                           ? <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>

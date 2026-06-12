@@ -80,7 +80,7 @@ export default function ServicesPage() {
                   Access {service.shortName}
                 </Link>
               </div>
-              <div className={`bg-navy-900 rounded-2xl p-10 text-white ${i % 2 !== 0 ? "md:order-1" : ""}`}>
+              <div className={`bg-navy-900 rounded-2xl p-6 sm:p-10 text-white ${i % 2 !== 0 ? "md:order-1" : ""}`}>
                 <p className="text-red-400 text-sm font-semibold mb-2">Best for</p>
                 <p className="text-xl font-bold">{service.audience}</p>
               </div>

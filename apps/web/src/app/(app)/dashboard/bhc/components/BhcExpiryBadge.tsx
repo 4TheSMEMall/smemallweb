@@ -15,7 +15,7 @@ export function BhcExpiryBadge({ completedAt, onRetake }: Props) {
 
   if (expired) {
     return (
-      <div className="flex items-center justify-between bg-red-50 border border-red-200 rounded-2xl p-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-red-50 border border-red-200 rounded-2xl p-4">
         <div className="flex items-center gap-3">
           <span className="text-2xl">⏰</span>
           <div>
@@ -27,7 +27,7 @@ export function BhcExpiryBadge({ completedAt, onRetake }: Props) {
         </div>
         <button
           onClick={onRetake}
-          className="flex-shrink-0 bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors ml-4"
+          className="w-full sm:w-auto flex-shrink-0 bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors"
         >
           Retake now
         </button>

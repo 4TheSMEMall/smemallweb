@@ -47,7 +47,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {stats.map((s) => (
             <div key={s.label} className="bg-white rounded-2xl p-5 shadow-card border border-gray-100 hover:shadow-card-hover transition-all">
               <div className={`w-10 h-10 ${s.color} rounded-xl flex items-center justify-center text-xl mb-4`}>{s.icon}</div>
@@ -61,7 +61,7 @@ export default function AdminDashboard() {
         {/* Management cards */}
         <div>
           <h2 className="text-lg font-extrabold text-navy-900 mb-4">Management</h2>
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {quickManage.map((card) => (
               <a
                 key={card.title}

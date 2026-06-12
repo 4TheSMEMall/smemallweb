@@ -49,9 +49,9 @@ const services = [
 export default function ServicesPage() {
   return (
     <DashboardLayout navItems={navItems}>
-      <div className="max-w-4xl space-y-8">
+      <div className="max-w-4xl w-full space-y-6 sm:space-y-8">
         <div>
-          <h1 className="text-2xl font-extrabold text-navy-900">My Services</h1>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-navy-900">My Services</h1>
           <p className="text-gray-500 text-sm mt-1">
             All three services are included in your SME Mall account — no extra sign-ups needed.
           </p>
@@ -64,12 +64,12 @@ export default function ServicesPage() {
               className="bg-white rounded-2xl shadow-card border border-gray-100 overflow-hidden hover:shadow-card-hover transition-all"
             >
               <div className={`h-1.5 w-full bg-gradient-to-r ${s.gradient}`} />
-              <div className="p-6 flex items-start gap-5">
+              <div className="p-6 flex flex-col sm:flex-row sm:items-start gap-5">
                 <div className={`w-14 h-14 bg-gradient-to-br ${s.gradient} rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 shadow-lg`}>
                   {s.emoji}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                     <div>
                       <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{s.tag}</span>
                       <h2 className="text-lg font-extrabold text-navy-900 mt-0.5">{s.name}</h2>
@@ -77,7 +77,7 @@ export default function ServicesPage() {
                     </div>
                     <Link
                       href={s.href}
-                      className="flex-shrink-0 bg-navy-900 hover:bg-red-500 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all whitespace-nowrap"
+                      className="flex-shrink-0 w-full sm:w-auto text-center bg-navy-900 hover:bg-red-500 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all whitespace-nowrap"
                     >
                       {s.cta} →
                     </Link>

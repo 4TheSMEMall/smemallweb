@@ -27,7 +27,7 @@ export default function PartnerDashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             { label: "Matched Businesses",   value: "0", icon: "🏢", color: "bg-blue-50",    accent: "text-blue-500" },
             { label: "Pending Applications", value: "0", icon: "⏳", color: "bg-amber-50",   accent: "text-amber-500" },

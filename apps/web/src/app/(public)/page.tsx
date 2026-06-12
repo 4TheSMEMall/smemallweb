@@ -108,7 +108,7 @@ export default function HomePage() {
               Nigeria&apos;s #1 SME Super App
             </div>
 
-            <h1 className="text-5xl md:text-6xl font-extrabold text-white leading-[1.08] tracking-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white leading-[1.08] tracking-tight mb-6">
               Everything your<br />
               business needs,{" "}
               <span className="text-gradient">in one place</span>
@@ -138,7 +138,7 @@ export default function HomePage() {
             </div>
 
             {/* Trust indicators */}
-            <div className="flex items-center gap-6 text-sm text-gray-500">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-sm text-gray-500">
               {["Free to join", "No credit card", "Cancel anytime"].map((t) => (
                 <div key={t} className="flex items-center gap-1.5">
                   <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -276,7 +276,7 @@ export default function HomePage() {
             {services.map((service, i) => (
               <div
                 key={service.id}
-                className="bg-white rounded-3xl p-8 md:p-10 shadow-card hover:shadow-card-hover transition-all duration-300 border border-gray-100 group"
+                className="bg-white rounded-3xl p-6 sm:p-8 md:p-10 shadow-card hover:shadow-card-hover transition-all duration-300 border border-gray-100 group"
               >
                 <div className={`flex flex-col ${i % 2 !== 0 ? "md:flex-row-reverse" : "md:flex-row"} gap-10 items-center`}>
                   <div className="flex-1">
@@ -288,7 +288,7 @@ export default function HomePage() {
                     </div>
                     <h3 className="text-2xl font-extrabold text-navy-900 mb-3">{service.name}</h3>
                     <p className="text-gray-500 mb-6 leading-relaxed">{service.desc}</p>
-                    <ul className="grid grid-cols-2 gap-2 mb-8">
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-8">
                       {service.features.map((f) => (
                         <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
                           <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">

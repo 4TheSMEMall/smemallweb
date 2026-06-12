@@ -44,9 +44,9 @@ export function BhcLenderPanel({ percentage }: Props) {
   return (
     <div className="bg-white rounded-2xl shadow-card border border-gray-100 overflow-hidden">
       <div className="p-6 border-b border-gray-100">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
               <span className="text-xl">🏦</span>
               <h2 className="font-extrabold text-navy-900">Lender Matching</h2>
               <span className="text-xs bg-navy-100 text-navy-700 font-bold px-2 py-0.5 rounded-full">
@@ -59,7 +59,7 @@ export function BhcLenderPanel({ percentage }: Props) {
             </p>
           </div>
           {pointsToNext > 0 && (
-            <div className="flex-shrink-0 text-right">
+            <div className="flex-shrink-0 sm:text-right">
               <p className="text-2xl font-extrabold text-navy-900">+{pointsToNext}</p>
               <p className="text-xs text-gray-400">pts to next tier</p>
             </div>
@@ -81,7 +81,7 @@ export function BhcLenderPanel({ percentage }: Props) {
             </div>
             <p className="font-extrabold text-navy-900 text-sm pr-24">{tier.label}</p>
             <p className="text-xs text-gray-500 mt-0.5 mb-3">{tier.desc}</p>
-            <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-wrap">
               <div>
                 <p className="text-xs text-gray-400 mb-0.5">Loan range</p>
                 <p className="font-bold text-navy-900 text-sm">{tier.loanRange}</p>
@@ -112,7 +112,7 @@ export function BhcLenderPanel({ percentage }: Props) {
               </div>
               <p className="font-extrabold text-gray-600 text-sm pr-28">{tier.label}</p>
               <p className="text-xs text-gray-400 mt-0.5 mb-3">{tier.desc}</p>
-              <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-wrap">
                 <div>
                   <p className="text-xs text-gray-400 mb-0.5">Loan range</p>
                   <p className="font-bold text-gray-500 text-sm">{tier.loanRange}</p>
@@ -133,7 +133,7 @@ export function BhcLenderPanel({ percentage }: Props) {
         })}
 
         {/* CTA */}
-        <div className="pt-2 flex items-center justify-between">
+        <div className="pt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <p className="text-xs text-gray-400">
             Live lender matching launches when partner onboarding is complete.
           </p>

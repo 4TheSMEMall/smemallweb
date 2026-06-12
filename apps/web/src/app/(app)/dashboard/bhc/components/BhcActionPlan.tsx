@@ -130,7 +130,7 @@ export function BhcActionPlan({ assessmentId, sectionScores, percentage }: Props
     <div className="bg-white rounded-2xl shadow-card border border-gray-100 overflow-hidden">
       {/* Header */}
       <div className="p-6 border-b border-gray-100">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xl">🗓️</span>
@@ -141,7 +141,7 @@ export function BhcActionPlan({ assessmentId, sectionScores, percentage }: Props
               Tick off tasks as you complete them.
             </p>
           </div>
-          <div className="text-right flex-shrink-0">
+          <div className="sm:text-right flex-shrink-0">
             <p className="text-2xl font-extrabold text-navy-900">{progress}%</p>
             <p className="text-xs text-gray-400">complete</p>
           </div>
