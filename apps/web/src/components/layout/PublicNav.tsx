@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -41,13 +42,15 @@ export function PublicNav() {
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center shadow-glow-red group-hover:scale-105 transition-transform">
-            <span className="text-white font-extrabold text-xs">SM</span>
-          </div>
-          <span className="text-white font-extrabold text-lg tracking-tight">
-            SME<span className="text-red-400"> Mall</span>
-          </span>
+        <Link href="/" className="flex items-center group">
+          <Image
+            src="/logo.png"
+            alt="SME Mall"
+            width={140}
+            height={40}
+            className="h-9 w-auto group-hover:opacity-90 transition-opacity"
+            priority
+          />
         </Link>
 
         {/* Desktop links */}
@@ -92,7 +95,7 @@ export function PublicNav() {
                 href="/signup"
                 className="bg-red-500 hover:bg-red-600 text-white text-sm font-bold px-5 py-2 rounded-lg transition-all hover:shadow-glow-red"
               >
-                Get Started Free
+                Get Started
               </Link>
             </>
           )}
@@ -132,7 +135,7 @@ export function PublicNav() {
           ))}
           <div className="pt-3 border-t border-white/[0.06] flex flex-col gap-2">
             <Link href="/login" onClick={() => setMenuOpen(false)} className="block text-center py-2.5 text-sm text-gray-300 hover:text-white transition-colors">Log in</Link>
-            <Link href="/signup" onClick={() => setMenuOpen(false)} className="block text-center py-2.5 bg-red-500 text-white text-sm font-bold rounded-lg">Get Started Free</Link>
+            <Link href="/signup" onClick={() => setMenuOpen(false)} className="block text-center py-2.5 bg-red-500 text-white text-sm font-bold rounded-lg">Get Started</Link>
           </div>
         </div>
       )}

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { PublicNav } from "./PublicNav";
@@ -10,16 +11,17 @@ export function PublicLayout({ children }: { children: ReactNode }) {
 
       <footer className="bg-navy-950 border-t border-white/[0.06]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-12">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 sm:gap-10 mb-12">
             {/* Brand */}
             <div className="col-span-2">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-extrabold text-xs">SM</span>
-                </div>
-                <span className="text-white font-extrabold text-lg">
-                  SME<span className="text-red-400"> Mall</span>
-                </span>
+              <div className="mb-4">
+                <Image
+                  src="/logo.png"
+                  alt="SME Mall"
+                  width={140}
+                  height={40}
+                  className="h-9 w-auto"
+                />
               </div>
               <p className="text-gray-500 text-sm leading-relaxed max-w-xs">
                 Nigeria&apos;s business super app. One login, every service your SME needs to get funded and grow.
@@ -66,7 +68,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
               <p className="text-white font-semibold text-sm mb-4">Account</p>
               <ul className="space-y-3">
                 {[
-                  { label: "Sign up free", href: "/signup" },
+                  { label: "Sign up", href: "/signup" },
                   { label: "Log in", href: "/login" },
                 ].map((l) => (
                   <li key={l.href}>

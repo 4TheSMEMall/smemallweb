@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { HeroSection }  from "./_components/HeroSection";
 import { BhcDeepDive }  from "./_components/BhcDeepDive";
+import { PulseCheck }   from "./_components/PulseCheck";
 import { StatsSection } from "./_components/StatsSection";
 
 export const metadata: Metadata = {
@@ -67,9 +68,9 @@ export default function HomePage() {
       <HeroSection />
 
       {/* ── 2. HOW IT WORKS ─────────────────────────────────────── */}
-      <section className="py-24 bg-white">
+      <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10 sm:mb-16">
             <span className="text-red-500 text-sm font-bold uppercase tracking-widest">How it works</span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-navy-900 mt-3 mb-4">
               From signup to funded in 3 steps
@@ -82,7 +83,7 @@ export default function HomePage() {
           <div className="relative grid md:grid-cols-3 gap-8">
             <div className="hidden md:block absolute top-10 left-[calc(16.67%+2rem)] right-[calc(16.67%+2rem)] h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
             {[
-              { n: "01", title: "Create your free account", desc: "Sign up in under 2 minutes. One account unlocks every service — no separate logins ever." },
+              { n: "01", title: "Create your account", desc: "Sign up in under 2 minutes. One account unlocks every service — no separate logins ever." },
               { n: "02", title: "Get your Business Health Score", desc: "Complete the BHC in 15 minutes. See your score across 6 dimensions and understand exactly what lenders see." },
               { n: "03", title: "Get funded and grow", desc: "Match with lenders based on your score, manage your finances with SME Paddy, and book expert advisors — all from one dashboard." },
             ].map((step) => (
@@ -99,9 +100,9 @@ export default function HomePage() {
       </section>
 
       {/* ── 3. BENTO PLATFORM OVERVIEW ──────────────────────────── */}
-      <section className="py-24 bg-gray-50">
+      <section className="py-16 sm:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 sm:mb-12">
             <span className="text-red-500 text-sm font-bold uppercase tracking-widest">Our services</span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-navy-900 mt-3 mb-4">
               One platform. Three engines.
@@ -115,7 +116,7 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-3 gap-4">
 
             {/* BHC — large card */}
-            <div className="lg:col-span-2 bg-navy-900 rounded-3xl p-8 relative overflow-hidden group hover:shadow-card-hover transition-all duration-300">
+            <div className="lg:col-span-2 bg-navy-900 rounded-3xl p-6 sm:p-8 relative overflow-hidden group hover:shadow-card-hover transition-all duration-300">
               <div className="absolute inset-0 bg-dots opacity-20" />
               <div className="absolute top-0 right-0 w-64 h-full bg-gradient-radial from-blue-500/20 via-transparent to-transparent pointer-events-none" />
               <div className="relative">
@@ -146,7 +147,7 @@ export default function HomePage() {
                   href="/signup"
                   className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-3 rounded-xl text-sm transition-all"
                 >
-                  Take the free assessment
+                  Take the assessment
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                   </svg>
@@ -207,13 +208,16 @@ export default function HomePage() {
       {/* ── 4. BHC DEEP DIVE ────────────────────────────────────── */}
       <BhcDeepDive />
 
-      {/* ── 5. BEFORE / AFTER ───────────────────────────────────── */}
-      <section className="py-24 bg-white">
+      {/* ── 5. PULSE CHECK ──────────────────────────────────────── */}
+      <PulseCheck />
+
+      {/* ── 7. BEFORE / AFTER ───────────────────────────────────── */}
+      <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
+          <div className="text-center mb-10 sm:mb-14">
             <span className="text-red-500 text-sm font-bold uppercase tracking-widest">The reality</span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-navy-900 mt-3 mb-4">
-              Most Nigerian SMEs get rejected.<br />
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-navy-900 mt-3 mb-4 leading-snug">
+              Most Nigerian SMEs get rejected.{" "}
               <span className="text-red-500">Here&apos;s why — and how to fix it.</span>
             </h2>
             <p className="text-gray-500 max-w-lg mx-auto">
@@ -223,7 +227,7 @@ export default function HomePage() {
 
           <div className="grid md:grid-cols-2 gap-6">
             {/* Before */}
-            <div className="bg-red-50 border-2 border-red-200 rounded-3xl p-8">
+            <div className="bg-red-50 border-2 border-red-200 rounded-3xl p-5 sm:p-8">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white font-extrabold text-sm flex-shrink-0">✕</div>
                 <h3 className="font-extrabold text-red-800 text-lg">Without The SME Mall</h3>
@@ -239,7 +243,7 @@ export default function HomePage() {
             </div>
 
             {/* After */}
-            <div className="bg-emerald-50 border-2 border-emerald-200 rounded-3xl p-8">
+            <div className="bg-emerald-50 border-2 border-emerald-200 rounded-3xl p-5 sm:p-8">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-extrabold text-sm flex-shrink-0">✓</div>
                 <h3 className="font-extrabold text-emerald-800 text-lg">With The SME Mall</h3>
@@ -260,7 +264,7 @@ export default function HomePage() {
               href="/signup"
               className="inline-flex items-center gap-2 bg-navy-900 hover:bg-red-500 text-white font-bold px-8 py-4 rounded-xl transition-all hover:shadow-card-hover"
             >
-              Start fixing this today — it&apos;s free
+              Start fixing this today
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
               </svg>
@@ -269,13 +273,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── 6. STATS + TICKER ───────────────────────────────────── */}
+      {/* ── 8. STATS + TICKER ───────────────────────────────────── */}
       <StatsSection />
 
-      {/* ── 7. TESTIMONIALS ─────────────────────────────────────── */}
-      <section className="py-24 bg-white">
+      {/* ── 9. TESTIMONIALS ─────────────────────────────────────── */}
+      <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10 sm:mb-16">
             <span className="text-red-500 text-sm font-bold uppercase tracking-widest">Success stories</span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-navy-900 mt-3 mb-4">
               Businesses that grew with us
@@ -289,7 +293,7 @@ export default function HomePage() {
             {testimonials.map((t) => (
               <div
                 key={t.name}
-                className="bg-gray-50 rounded-3xl p-8 border border-gray-100 hover:border-red-100 hover:shadow-card transition-all duration-300 flex flex-col"
+                className="bg-gray-50 rounded-3xl p-6 sm:p-8 border border-gray-100 hover:border-red-100 hover:shadow-card transition-all duration-300 flex flex-col"
               >
                 {/* Score badge */}
                 <div className="flex items-center gap-2 mb-5">
@@ -329,20 +333,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── 8. FINAL CTA ────────────────────────────────────────── */}
-      <section className="py-24 bg-navy-950 relative overflow-hidden">
+      {/* ── 10. FINAL CTA ───────────────────────────────────────── */}
+      <section className="py-16 sm:py-24 bg-navy-950 relative overflow-hidden">
         <div className="absolute inset-0 bg-dots opacity-30" />
         <div className="absolute inset-0 bg-gradient-radial from-red-500/15 via-transparent to-transparent" />
         <div className="relative max-w-3xl mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 text-gray-300 text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
             <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-            Free to join — no credit card required
+            Join thousands of Nigerian businesses
           </div>
-          <h2 className="text-4xl sm:text-5xl font-extrabold text-white mb-5 leading-tight">
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-5 leading-tight">
             Ready to grow your<br />
             <span className="text-gradient">Nigerian business?</span>
           </h2>
-          <p className="text-gray-400 text-lg mb-10 max-w-xl mx-auto">
+          <p className="text-gray-400 text-base sm:text-lg mb-8 sm:mb-10 max-w-xl mx-auto">
             Join thousands of business owners already using The SME Mall to get funded, stay organised, and scale.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -350,7 +354,7 @@ export default function HomePage() {
               href="/signup"
               className="inline-flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white font-bold px-8 py-4 rounded-xl text-lg transition-all hover:shadow-glow-red hover:-translate-y-0.5"
             >
-              Create free account
+              Create your account
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
               </svg>
@@ -362,7 +366,7 @@ export default function HomePage() {
               Talk to us
             </Link>
           </div>
-          <p className="text-gray-600 text-sm mt-6">No credit card required · Free forever on basic plan</p>
+          <p className="text-gray-600 text-sm mt-6">Get started today — no commitment required</p>
         </div>
       </section>
     </PublicLayout>
