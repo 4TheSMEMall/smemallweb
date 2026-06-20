@@ -7,6 +7,10 @@ import { PrismaUserRepository } from "./infrastructure/repositories/PrismaUserRe
 import { PrismaBhcResultRepository } from "./infrastructure/repositories/PrismaBhcResultRepository";
 import { BcryptPasswordService } from "./infrastructure/services/BcryptPasswordService";
 import { JwtTokenService } from "./infrastructure/services/JwtTokenService";
+import { PrismaWibgRepository } from "./infrastructure/repositories/PrismaWibgRepository";
+import { SubmitApplicationUseCase } from "./application/use-cases/wibg/SubmitApplicationUseCase";
+import { RegisterAttendeeUseCase } from "./application/use-cases/wibg/RegisterAttendeeUseCase";
+import { WibgController } from "./presentation/controllers/WibgController";
 import { RegisterUseCase } from "./application/use-cases/auth/RegisterUseCase";
 import { LoginUseCase } from "./application/use-cases/auth/LoginUseCase";
 import { GetMeUseCase } from "./application/use-cases/auth/GetMeUseCase";
@@ -19,6 +23,7 @@ import { BhcController } from "./presentation/controllers/BhcController";
 import { createAuthRouter } from "./presentation/routes/auth.routes";
 import { createWebhookRouter } from "./presentation/routes/webhook.routes";
 import { createBhcRouter } from "./presentation/routes/bhc.routes";
+import { createWibgRouter } from "./presentation/routes/wibg.routes";
 import { createAuthMiddleware } from "./presentation/middleware/authenticate";
 import { errorHandler } from "./presentation/middleware/errorHandler";
 
@@ -26,6 +31,7 @@ export function createApp(): Express {
   // ── Infrastructure ───────────────────────────────────────────
   const userRepo       = new PrismaUserRepository(prisma);
   const bhcResultRepo  = new PrismaBhcResultRepository(prisma);
+  const wibgRepo       = new PrismaWibgRepository(prisma);
   const passwordService = new BcryptPasswordService();
   const tokenService   = new JwtTokenService(
     process.env.JWT_SECRET  ?? "change-me-in-production",
@@ -41,6 +47,8 @@ export function createApp(): Express {
   const generateBhcLaunchTokenUseCase = new GenerateBhcLaunchTokenUseCase(
     process.env.BHC_WEBHOOK_SECRET ?? "change-me"
   );
+  const submitApplicationUseCase  = new SubmitApplicationUseCase(wibgRepo);
+  const registerAttendeeUseCase   = new RegisterAttendeeUseCase(wibgRepo);
 
   // ── Controllers ──────────────────────────────────────────────
   const authController    = new AuthController(registerUseCase, loginUseCase, getMeUseCase);
@@ -48,6 +56,8 @@ export function createApp(): Express {
     saveBhcResultUseCase,
     process.env.BHC_WEBHOOK_SECRET ?? "change-me"
   );
+  const wibgController = new WibgController(submitApplicationUseCase, registerAttendeeUseCase);
+
   const bhcController = new BhcController(
     getBhcHistoryUseCase,
     generateBhcLaunchTokenUseCase,
@@ -101,6 +111,7 @@ export function createApp(): Express {
 
   app.use("/api/auth",     authLimiter, createAuthRouter(authController, authenticate));
   app.use("/api/bhc",      createBhcRouter(bhcController, authenticate));
+  app.use("/api/wibg",     createWibgRouter(wibgController));
 
   app.use(errorHandler);
   return app;

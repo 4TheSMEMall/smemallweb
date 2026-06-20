@@ -58,3 +58,39 @@ model BhcResult {
   @@index([userId])
   @@map("bhc_results")
 }
+
+model WibgApplication {
+  id             String   @id @default(cuid())
+  founderName    String   @map("founder_name")
+  founderEmail   String   @map("founder_email")
+  founderPhone   String   @map("founder_phone")
+  businessName   String   @map("business_name")
+  cacStatus      String   @map("cac_status")
+  cacNumber      String?  @map("cac_number")
+  problem        String
+  solution       String
+  market         String
+  traction       String
+  revenue3m      Int      @map("revenue_3m")
+  proj12m        Int      @map("proj_12m")
+  bhcRef         String   @map("bhc_ref")
+  bizStage       String   @map("biz_stage")
+  pitchVideoLink String?  @map("pitch_video_link")
+  status         String   @default("submitted")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("wibg_applications")
+}
+
+model WibgAttendee {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  phone     String
+  role      String
+  notes     String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("wibg_attendees")
+}
