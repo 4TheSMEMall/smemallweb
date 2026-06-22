@@ -16,9 +16,9 @@ const applySchema = z.object({
   traction:       z.string().min(10, "Please describe your traction"),
   revenue3m:      z.coerce.number().min(0),
   proj12m:        z.coerce.number().min(0),
-  bhcRef:         z.string().min(3, "BHC reference number is required"),
+  bhcRef:         z.string().min(1, "BHC reference is required"),
   bizStage:       z.string().min(1, "Business stage is required"),
-  pitchVideoLink: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
+  pitchVideoLink: z.string().optional(),
 });
 
 const attendSchema = z.object({

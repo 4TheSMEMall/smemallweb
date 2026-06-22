@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 
 const ROLE_HOME: Record<string, string> = {
@@ -15,6 +15,8 @@ const ROLE_HOME: Record<string, string> = {
 export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +29,7 @@ export default function LoginPage() {
     try {
       await login(form);
       router.refresh();
-      router.push("/dashboard");
+      router.push(returnTo?.startsWith("/") ? returnTo : "/dashboard");
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
@@ -103,7 +105,7 @@ export default function LoginPage() {
             <h1 className="text-3xl font-extrabold text-navy-900 mb-2">Log in to your account</h1>
             <p className="text-gray-500 text-sm">
               Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-red-500 font-semibold hover:underline">
+              <Link href={returnTo ? `/signup?returnTo=${encodeURIComponent(returnTo)}` : "/signup"} className="text-red-500 font-semibold hover:underline">
                 Sign up free →
               </Link>
             </p>

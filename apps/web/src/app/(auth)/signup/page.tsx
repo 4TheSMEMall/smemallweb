@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { UserRole } from "@sme-mall/shared";
 import { USER_ROLE_LABELS } from "@sme-mall/shared";
 import { useAuth } from "@/contexts/AuthContext";
@@ -44,6 +44,8 @@ interface FormState {
 export default function SignupPage() {
   const { register } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
   const [step, setStep] = useState<1 | 2>(1);
   const [form, setForm] = useState<FormState>({ firstName: "", lastName: "", email: "", phone: "", password: "", role: "" });
   const [error, setError] = useState("");
@@ -58,7 +60,7 @@ export default function SignupPage() {
     setIsLoading(true);
     try {
       await register({ firstName: form.firstName, lastName: form.lastName, email: form.email, phone: form.phone || undefined, password: form.password, role: form.role as UserRole });
-      router.push(ROLE_HOME[form.role] ?? "/dashboard");
+      router.push(returnTo?.startsWith("/") ? returnTo : (ROLE_HOME[form.role] ?? "/dashboard"));
     } catch (err: unknown) {
       const apiErr = err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
       setError(apiErr?.response?.data?.message ?? "Sign up failed. Please try again.");
@@ -146,7 +148,7 @@ export default function SignupPage() {
               {step === 1 ? "Select the option that fits you — it determines your dashboard." : (
                 <>
                   Already have an account?{" "}
-                  <Link href="/login" className="text-red-500 font-semibold hover:underline">Log in →</Link>
+                  <Link href={returnTo ? `/login?returnTo=${encodeURIComponent(returnTo)}` : "/login"} className="text-red-500 font-semibold hover:underline">Log in →</Link>
                 </>
               )}
             </p>

@@ -33,13 +33,13 @@ export function PublicLayout({ children }: { children: ReactNode }) {
               <p className="text-white font-semibold text-sm mb-4">Services</p>
               <ul className="space-y-3">
                 {[
-                  "Business Health Checker",
-                  "SME Paddy",
-                  "WIBG",
+                  { label: "Business Health Checker", href: "/services" },
+                  { label: "SME Paddy",               href: "/services" },
+                  { label: "WIBG 2026",               href: "/wibg"     },
                 ].map((s) => (
-                  <li key={s}>
-                    <Link href="/services" className="text-gray-500 text-sm hover:text-white transition-colors">
-                      {s}
+                  <li key={s.label}>
+                    <Link href={s.href} className="text-gray-500 text-sm hover:text-white transition-colors">
+                      {s.label}
                     </Link>
                   </li>
                 ))}

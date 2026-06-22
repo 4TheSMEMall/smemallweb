@@ -31,7 +31,7 @@ export function middleware(request: NextRequest) {
   // Not logged in → trying to access protected page → send to login
   if (isProtected && !token) {
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("from", pathname); // remember where they were going
+    loginUrl.searchParams.set("returnTo", pathname); // remember where they were going
     return NextResponse.redirect(loginUrl);
   }
 
