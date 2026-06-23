@@ -146,7 +146,14 @@ export default function WibgApplyPage() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message ?? "Submission failed. Please try again.");
+      if (!res.ok) {
+        const fieldErrors = data.fields
+          ? Object.entries(data.fields as Record<string, string[]>)
+              .map(([f, msgs]) => `${f}: ${msgs.join(", ")}`)
+              .join(" · ")
+          : null;
+        throw new Error(fieldErrors ?? data.message ?? "Submission failed. Please try again.");
+      }
       setReceiptId(data.data.id);
       setStep("success");
       window.scrollTo({ top: 0 });

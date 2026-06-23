@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { DomainError } from "../../domain/errors/DomainError";
+import { DomainError, ValidationError } from "../../domain/errors/DomainError";
 import type { ApiResponse } from "@sme-mall/shared";
 
 /**
@@ -15,10 +15,11 @@ export function errorHandler(
   _next: NextFunction
 ): void {
   if (err instanceof DomainError) {
-    const body: ApiResponse = {
+    const body: Record<string, unknown> = {
       success: false,
       message: err.message,
     };
+    if (err instanceof ValidationError) body.fields = err.fields;
     res.status(err.statusCode).json(body);
     return;
   }
