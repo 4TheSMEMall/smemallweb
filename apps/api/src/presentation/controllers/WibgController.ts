@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import type { SubmitApplicationUseCase } from "../../application/use-cases/wibg/SubmitApplicationUseCase";
 import type { RegisterAttendeeUseCase } from "../../application/use-cases/wibg/RegisterAttendeeUseCase";
 import type { ApiResponse } from "@sme-mall/shared";
+import { sendApplicationReceivedEmail } from "../../infrastructure/services/BrevoEmailService";
 
 export class WibgController {
   constructor(
@@ -12,6 +13,12 @@ export class WibgController {
   submitApplication = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const application = await this.submitApplicationUseCase.execute(req.body);
+      sendApplicationReceivedEmail(
+        application.founderEmail,
+        application.founderName,
+        application.businessName,
+        application.id,
+      ).catch((err) => console.error("[Email] submission email failed:", err));
       res.status(201).json({
         success: true,
         data: { id: application.id, submittedAt: application.createdAt },

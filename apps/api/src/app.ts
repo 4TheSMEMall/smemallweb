@@ -24,8 +24,12 @@ import { createAuthRouter } from "./presentation/routes/auth.routes";
 import { createWebhookRouter } from "./presentation/routes/webhook.routes";
 import { createBhcRouter } from "./presentation/routes/bhc.routes";
 import { createWibgRouter } from "./presentation/routes/wibg.routes";
+import { createAdminRouter } from "./presentation/routes/admin.routes";
 import { createAuthMiddleware } from "./presentation/middleware/authenticate";
 import { errorHandler } from "./presentation/middleware/errorHandler";
+import { UpdateApplicationStatusUseCase } from "./application/use-cases/wibg/UpdateApplicationStatusUseCase";
+import { GetAdminStatsUseCase } from "./application/use-cases/admin/GetAdminStatsUseCase";
+import { AdminController } from "./presentation/controllers/AdminController";
 
 export function createApp(): Express {
   // ── Infrastructure ───────────────────────────────────────────
@@ -49,6 +53,8 @@ export function createApp(): Express {
   );
   const submitApplicationUseCase  = new SubmitApplicationUseCase(wibgRepo);
   const registerAttendeeUseCase   = new RegisterAttendeeUseCase(wibgRepo);
+  const updateStatusUseCase       = new UpdateApplicationStatusUseCase(wibgRepo);
+  const adminStatsUseCase         = new GetAdminStatsUseCase(prisma);
 
   // ── Controllers ──────────────────────────────────────────────
   const authController    = new AuthController(registerUseCase, loginUseCase, getMeUseCase);
@@ -63,6 +69,8 @@ export function createApp(): Express {
     generateBhcLaunchTokenUseCase,
     process.env.BHC_API_URL ?? "https://bhcdemo-production.up.railway.app/api/v1"
   );
+
+  const adminController = new AdminController(adminStatsUseCase, wibgRepo, updateStatusUseCase, userRepo);
 
   // ── Middleware ───────────────────────────────────────────────
   const authenticate = createAuthMiddleware(tokenService);
@@ -112,6 +120,7 @@ export function createApp(): Express {
   app.use("/api/auth",     authLimiter, createAuthRouter(authController, authenticate));
   app.use("/api/bhc",      createBhcRouter(bhcController, authenticate));
   app.use("/api/wibg",     createWibgRouter(wibgController));
+  app.use("/api/admin",    createAdminRouter(adminController, tokenService));
 
   app.use(errorHandler);
   return app;
