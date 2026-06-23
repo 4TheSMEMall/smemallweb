@@ -7,7 +7,7 @@ import Link from "next/link";
 function Countdown() {
   const [t, setT] = useState({ d: 0, h: 0, m: 0 });
   useEffect(() => {
-    const target = new Date("2026-09-12T09:00:00").getTime();
+    const target = new Date("2026-07-04T09:00:00").getTime();
     const tick = () => {
       const diff = target - Date.now();
       if (diff <= 0) return;
@@ -58,30 +58,30 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 const JOURNEY_STEPS = [
   { num: "01", title: "BHC Diagnostic",     desc: "Pay the ₦15,000 gateway fee and complete the 20-question Business Health Check. Your score unlocks the application form.", date: "Opens Apr 1" },
-  { num: "02", title: "Full Application",   desc: "Submit your business profile, financials, CAC status, and a 2-minute video pitch link. Tell us why you should win.", date: "Closes May 24" },
-  { num: "03", title: "Capacity Webinars",  desc: "Attend intensive Saturday and Sunday training sessions across at least 2 of the 3 August weekends. Mandatory for shortlisting.", date: "Aug 8 – 21" },
-  { num: "04", title: "Virtual Semi-Final", desc: "Top 20 applicants pitch virtually to an independent panel. Six finalists are selected for the Grand Finale.", date: "Sept 5" },
-  { num: "05", title: "Grand Finale",       desc: "Six finalists pitch live on the SME Mall main stage before 500+ attendees, investors, and press. The best three win.", date: "Sept 12" },
+  { num: "02", title: "Full Application",   desc: "Submit your business profile, financials, CAC status, and a 2-minute video pitch link. Tell us why you should win.", date: "Closes June 24" },
+  { num: "03", title: "Capacity Webinars",  desc: "Attend intensive Saturday and Sunday training sessions across at least 2 of the 3 June weekends. Mandatory for shortlisting.", date: "June 7 – 22" },
+  { num: "04", title: "Virtual Semi-Final", desc: "Top 20 applicants pitch virtually to an independent panel. Six finalists are selected for the Grand Finale.", date: "June 28" },
+  { num: "05", title: "Grand Finale",       desc: "Six finalists pitch live on the SME Mall main stage before 500+ attendees, investors, and press. The best three win.", date: "July 4" },
 ];
 
 const SAT_WEBINARS = [
-  { week: "Weekend 1", topic: "Legal",      date: "Sat, August 8", bullets: ["Business registration and licensing", "Contracts and regulatory compliance", "Legal risk management for SMEs"] },
-  { week: "Weekend 2", topic: "HR",         date: "Sat, August 13", bullets: ["Employment contracts and payroll", "Staff policies and compliance", "Building people systems for growth"] },
-  { week: "Weekend 3", topic: "Technology", date: "Sat, August 20", bullets: ["Digital tools and payment systems", "Business automation and efficiency", "Tech as a competitive advantage"] },
+  { week: "Weekend 1", topic: "Legal",      date: "Sat, June 7",  bullets: ["Business registration and licensing", "Contracts and regulatory compliance", "Legal risk management for SMEs"] },
+  { week: "Weekend 2", topic: "HR",         date: "Sat, June 14", bullets: ["Employment contracts and payroll", "Staff policies and compliance", "Building people systems for growth"] },
+  { week: "Weekend 3", topic: "Technology", date: "Sat, June 21", bullets: ["Digital tools and payment systems", "Business automation and efficiency", "Tech as a competitive advantage"] },
 ];
 
 const SUN_WEBINARS = [
-  { week: "Weekend 1", topic: "Accounting", date: "Sun, August 9",  bullets: ["Bookkeeping and P&L fundamentals", "Tax readiness and compliance", "Financial records that attract lenders"] },
-  { week: "Weekend 2", topic: "Marketing",  date: "Sun, August 14", bullets: ["Value proposition and customer targeting", "Digital presence and CRM", "Brand-to-revenue strategy"] },
-  { week: "Weekend 3", topic: "Advisory",   date: "Sun, August 21", bullets: ["Business planning and governance", "Growth strategy and scaling", "Accessing funding and expert guidance"] },
+  { week: "Weekend 1", topic: "Accounting", date: "Sun, June 8",  bullets: ["Bookkeeping and P&L fundamentals", "Tax readiness and compliance", "Financial records that attract lenders"] },
+  { week: "Weekend 2", topic: "Marketing",  date: "Sun, June 15", bullets: ["Value proposition and customer targeting", "Digital presence and CRM", "Brand-to-revenue strategy"] },
+  { week: "Weekend 3", topic: "Advisory",   date: "Sun, June 22", bullets: ["Business planning and governance", "Growth strategy and scaling", "Accessing funding and expert guidance"] },
 ];
 
 const FAQS = [
-  { q: "What is the WIBG 2026 Pitch Competition?", a: "The Women in Business Grant (WIBG) is a premium capacity-building program and pitch competition for female-led businesses, run in partnership with SME Mall. Six finalists are selected to pitch for ₦3 Million in grants — ₦1.5M first place, ₦1M second, ₦500K third — at the physical Grand Finale on September 12, 2026." },
+  { q: "What is the WIBG 2026 Pitch Competition?", a: "The Women in Business Grant (WIBG) is a premium capacity-building program and pitch competition for female-led businesses, run in partnership with SME Mall. Six finalists are selected to pitch for ₦3 Million in grants — ₦1.5M first place, ₦1M second, ₦500K third — at the physical Grand Finale on July 4, 2026 in Lagos." },
   { q: "Why is there a ₦15,000 fee and what is the BHC?", a: "The Business Health Check (BHC) is a structured 20-question diagnostic measuring business readiness across Legal, Accounting, HR, Marketing, Technology, and Advisory. The ₦15,000 fee funds program delivery and provides a personalised score, coach allocation, and unlocks the official pitch application form." },
-  { q: "What are the webinar attendance requirements?", a: "Webinars run across 3 weekends in August. Saturdays cover Business Foundations; Sundays cover Market & Brand Leadership. To remain eligible for shortlisting, you must attend both Saturday and Sunday sessions for at least 2 of the 3 weekends. Attendance is verified via sign-in." },
+  { q: "What are the webinar attendance requirements?", a: "Webinars run across 3 weekends in June. Saturdays cover Business Foundations; Sundays cover Market & Brand Leadership. To remain eligible for shortlisting, you must attend both Saturday and Sunday sessions for at least 2 of the 3 weekends. Attendance is verified via sign-in." },
   { q: "What should be in my video pitch?", a: "A 2-minute video (hosted on Google Drive, YouTube, or Dropbox — paste the shareable link in your application). Introduce yourself and your business, explain why your business is the best fit, and make a compelling case for why you should win. Quality over length." },
-  { q: "What are the key deadlines?", a: "Applications open April 1. The deadline to pay the BHC fee, submit your full application, and upload your video pitch is Sunday, May 24, 2026. No extensions. Virtual semi-finals: September 5. Grand Finale: September 12, 2026." },
+  { q: "What are the key deadlines?", a: "Applications open April 1. The deadline to pay the BHC fee and submit your full application is Tuesday, June 24, 2026. No extensions. Virtual semi-finals: June 28. Grand Finale: July 4, 2026 in Lagos." },
 ];
 
 // ── Main Component ─────────────────────────────────────────────
@@ -162,7 +162,7 @@ export function WibgPageClient() {
               {/* Quick facts row */}
               <div className="flex flex-wrap gap-x-6 gap-y-3">
                 {[
-                  { icon: "📅", text: "September 12, Lagos" },
+                  { icon: "📅", text: "July 4, Lagos" },
                   { icon: "🎤", text: "6 finalists selected" },
                   { icon: "🏆", text: "Equity-free grants" },
                 ].map((f) => (
@@ -280,7 +280,7 @@ export function WibgPageClient() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-14">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-green-400 mb-4">August Capacity Building</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-green-400 mb-4">June Capacity Building</p>
               <h2 className="text-3xl sm:text-5xl font-extrabold text-white leading-tight">
                 3 weekends.<br />6 disciplines.
               </h2>
@@ -430,7 +430,7 @@ export function WibgPageClient() {
                   Ready to<br />pitch for it?
                 </h3>
                 <p className="text-green-100/70 text-sm leading-relaxed max-w-sm">
-                  Complete your BHC diagnostic, submit your application before May 24, and step onto the biggest stage for women-led businesses in Nigeria.
+                  Complete your BHC diagnostic, submit your application before June 24, and step onto the biggest stage for women-led businesses in Nigeria.
                 </p>
               </div>
               <Link
@@ -454,7 +454,7 @@ export function WibgPageClient() {
                     </svg>
                   </div>
                   <h4 className="text-white font-extrabold text-xl mb-2">Seat secured.</h4>
-                  <p className="text-gray-500 text-sm">We&apos;ll send event details and your ticket closer to September 12th.</p>
+                  <p className="text-gray-500 text-sm">We&apos;ll send event details and your ticket closer to July 4th.</p>
                 </div>
               ) : (
                 <>
@@ -462,7 +462,7 @@ export function WibgPageClient() {
                   <h3 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight mb-2">
                     Attend the<br />Grand Finale.
                   </h3>
-                  <p className="text-gray-500 text-sm mb-8">Sept 12 · SME Mall Stage · Lagos · 500 seats</p>
+                  <p className="text-gray-500 text-sm mb-8">July 4 · SME Mall Stage · Lagos · 500 seats</p>
 
                   <form onSubmit={handleAttend} className="space-y-3">
                     <div className="grid sm:grid-cols-2 gap-3">

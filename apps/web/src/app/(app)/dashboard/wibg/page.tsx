@@ -13,10 +13,10 @@ const navItems = [
 
 const JOURNEY = [
   { num: "01", title: "BHC Diagnostic",    desc: "Complete the 20-question Business Health Check via your SME Mall account. The ₦15,000 fee is your entry point.", date: "Opens Apr 1" },
-  { num: "02", title: "Full Application",  desc: "Submit your business profile, financials, CAC status, and a 2-minute video pitch link.", date: "Closes May 24" },
-  { num: "03", title: "Capacity Webinars", desc: "Attend Saturday and Sunday training sessions across at least 2 of 3 August weekends. Mandatory for shortlisting.", date: "Aug 8 – 21" },
-  { num: "04", title: "Virtual Semi-Final",desc: "Top 20 applicants pitch virtually. Six finalists advance to the Grand Finale.", date: "Sept 5" },
-  { num: "05", title: "Grand Finale",      desc: "Six finalists pitch live at the SME Mall stage before 500+ attendees, investors, and press.", date: "Sept 12, Lagos" },
+  { num: "02", title: "Full Application",  desc: "Submit your business profile, financials, CAC status, and a 2-minute video pitch link.", date: "Closes June 24" },
+  { num: "03", title: "Capacity Webinars", desc: "Attend Saturday and Sunday training sessions across at least 2 of 3 June weekends. Mandatory for shortlisting.", date: "June 7 – 22" },
+  { num: "04", title: "Virtual Semi-Final",desc: "Top 20 applicants pitch virtually. Six finalists advance to the Grand Finale.", date: "June 28" },
+  { num: "05", title: "Grand Finale",      desc: "Six finalists pitch live at the SME Mall stage before 500+ attendees, investors, and press.", date: "July 4, Lagos" },
 ];
 
 export default function WibgOverviewPage() {
@@ -71,7 +71,7 @@ export default function WibgOverviewPage() {
             { val: "₦3M",    label: "Total Prize Pool"   },
             { val: "6",      label: "Finalists Selected" },
             { val: "500+",   label: "Live Audience"      },
-            { val: "Sept 12",label: "Grand Finale"       },
+            { val: "July 4", label: "Grand Finale"       },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-2xl border border-gray-100 shadow-card p-5">
               <p className="text-2xl font-extrabold text-navy-900">{s.val}</p>
@@ -100,6 +100,39 @@ export default function WibgOverviewPage() {
                 <p className="font-extrabold text-navy-900 text-base flex-shrink-0">{p.amount}</p>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* ── Webinar dates ────────────────────────────────── */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-card overflow-hidden">
+          <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Capacity Training Webinars</p>
+            <span className="text-[11px] font-bold text-green-700 bg-green-50 border border-green-100 px-2.5 py-1 rounded-full">Mandatory — Attend 2 of 3</span>
+          </div>
+          <div className="divide-y divide-gray-50">
+            {[
+              { weekend: "Weekend 1", dates: "Sat 7 & Sun 8 June 2026",  pillar: "Pillar 1 — Business Foundations & Legal", tag: "Past" },
+              { weekend: "Weekend 2", dates: "Sat 14 & Sun 15 June 2026", pillar: "Pillar 2 — Finance, Growth & Sales",        tag: "Past" },
+              { weekend: "Weekend 3", dates: "Sat 21 & Sun 22 June 2026", pillar: "Pillar 3 — Pitching & Investor Readiness",  tag: "Past" },
+            ].map((w) => (
+              <div key={w.weekend} className="px-6 py-4 flex items-start gap-4">
+                <div className="w-9 h-9 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg className="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-navy-900 font-bold text-sm">{w.weekend} — {w.dates}</p>
+                  <p className="text-gray-500 text-xs mt-0.5">{w.pillar}</p>
+                </div>
+                <span className="text-[11px] font-bold text-gray-400 bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-full whitespace-nowrap mt-0.5">{w.tag}</span>
+              </div>
+            ))}
+          </div>
+          <div className="px-6 py-4 bg-amber-50 border-t border-amber-100">
+            <p className="text-amber-700 text-xs leading-relaxed">
+              <strong>Note:</strong> All webinar sessions have now passed. If you attended at least 2 of 3 weekends (both Saturday and Sunday each), you remain eligible for shortlisting.
+            </p>
           </div>
         </div>
 
@@ -132,9 +165,9 @@ export default function WibgOverviewPage() {
               "Business majority female-owned or co-founded and managed by a woman",
               "₦15,000 BHC diagnostic fee paid via SME Mall account",
               "Video pitch (2 minutes max) submitted as a shareable link",
-              "Attend at least 2 of 3 August training weekends (both days each)",
-              "Available in Lagos on September 12, 2026 if shortlisted",
-              "Application submitted before May 24, 2026 deadline",
+              "Attend at least 2 of 3 June training weekends (both days each)",
+              "Available in Lagos on July 4, 2026 if shortlisted",
+              "Application submitted before June 24, 2026 deadline",
             ].map((req) => (
               <div key={req} className="flex items-start gap-2.5">
                 <div className="w-4 h-4 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -151,7 +184,7 @@ export default function WibgOverviewPage() {
         {/* ── Bottom CTA ───────────────────────────────────── */}
         <div className="bg-green-500 rounded-2xl p-7 sm:p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
           <div>
-            <p className="text-green-900/60 text-xs font-bold uppercase tracking-widest mb-1">Deadline: May 24, 2026</p>
+            <p className="text-green-900/60 text-xs font-bold uppercase tracking-widest mb-1">Deadline: June 24, 2026</p>
             <p className="text-white font-extrabold text-xl">Ready to pitch for ₦1.5M?</p>
             <p className="text-green-100/70 text-sm mt-1">Start your application — takes about 15 minutes.</p>
           </div>

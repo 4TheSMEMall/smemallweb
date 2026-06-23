@@ -43,7 +43,7 @@ const EMPTY: FormData = {
 const TC_ITEMS = [
   { id: "gender",  label: "I confirm that my business is owned or run by a woman." },
   { id: "bhc",     label: "I understand that the ₦15,000 BHC fee is not refundable and does not guarantee that I will be shortlisted." },
-  { id: "webinar", label: "I will attend the August training sessions — at least 2 out of 3 weekends, for both Saturday and Sunday each." },
+  { id: "webinar", label: "I will attend the June training sessions — at least 2 out of 3 weekends, for both Saturday and Sunday each." },
   { id: "agree",   label: "I agree to all the rules and decisions of the WIBG 2026 team." },
 ];
 
@@ -386,8 +386,8 @@ export default function WibgApplyPage() {
               {[
                 ["1. About WIBG", "By applying to WIBG 2026, you agree to follow all guidelines and rules set by the organising team in partnership with SME Mall."],
                 ["2. BHC Fee", "The ₦15,000 BHC fee is not refundable. Paying it does not mean you will be shortlisted or win."],
-                ["3. Training Attendance", "You must attend both Saturday and Sunday sessions for at least 2 of the 3 August weekends to remain eligible."],
-                ["4. Grand Finale", "If you are shortlisted among the top 6, you must be present in Lagos on September 12, 2026. Transport is your responsibility."],
+                ["3. Training Attendance", "You must attend both Saturday and Sunday sessions for at least 2 of the 3 June weekends to remain eligible."],
+                ["4. Grand Finale", "If you are shortlisted among the top 6, you must be present in Lagos on July 4, 2026. Transport is your responsibility."],
               ].map(([title, body]) => (
                 <div key={title}><p className="text-navy-900 font-semibold mb-0.5">{title}</p><p>{body}</p></div>
               ))}
