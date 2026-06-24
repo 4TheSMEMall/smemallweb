@@ -4,7 +4,8 @@ import { PublicLayout } from "@/components/layout/PublicLayout";
 import { HeroSection }  from "./_components/HeroSection";
 import { BhcDeepDive }  from "./_components/BhcDeepDive";
 import { PulseCheck }   from "./_components/PulseCheck";
-import { StatsSection } from "./_components/StatsSection";
+import { StatsSection }    from "./_components/StatsSection";
+import { WibgEventPopup }  from "./_components/WibgEventPopup";
 
 export const metadata: Metadata = {
   title: "The SME Mall — Nigeria's #1 Business Super App",
@@ -64,6 +65,7 @@ const AFTER = [
 export default function HomePage() {
   return (
     <PublicLayout>
+      <WibgEventPopup />
       {/* ── 1. HERO ─────────────────────────────────────────────── */}
       <HeroSection />
 

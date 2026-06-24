@@ -236,6 +236,108 @@ export function WibgPageClient() {
       </section>
 
       {/* ══════════════════════════════════════════════════════
+          THE CHALLENGE — why WIBG exists
+      ══════════════════════════════════════════════════════ */}
+      <section className="relative bg-navy-950 py-20 sm:py-28 overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse 60% 50% at 80% 50%, rgba(34,197,94,0.05), transparent)" }} />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-green-400 mb-5">Why WIBG Exists</p>
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-white leading-tight max-w-2xl mb-16">
+            Access, not ability,<br />is what holds most<br />
+            <span className="text-green-400">women founders back.</span>
+          </h2>
+
+          <div className="grid sm:grid-cols-3 gap-px bg-white/[0.05] rounded-3xl overflow-hidden">
+            {[
+              {
+                stat: "Less than 8%",
+                context: "of startup funding in Nigeria reaches women-led businesses — not because they lack ideas, but because the system wasn't built for them.",
+                accent: "text-green-400",
+              },
+              {
+                stat: "7 in 10",
+                context: "female-led SMEs cite lack of capital as their number one barrier to growth, yet fewer than 1 in 4 have ever applied for a business loan.",
+                accent: "text-white",
+              },
+              {
+                stat: "₦3,000,000",
+                context: "in equity-free capital is being put directly into the hands of three women founders on July 4. No interest. No equity. No conditions.",
+                accent: "text-amber-400",
+              },
+            ].map((s) => (
+              <div key={s.stat} className="bg-[#060f1c] px-8 sm:px-10 py-10 sm:py-12">
+                <p className={`text-4xl sm:text-5xl font-extrabold leading-none mb-5 ${s.accent}`}>{s.stat}</p>
+                <p className="text-gray-500 text-sm leading-relaxed">{s.context}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════
+          CINEMATIC PHOTO BANNER
+          → Replace the inner <div> with:
+            <img src="/images/wibg-banner.jpg" className="w-full h-full object-cover" alt="..." />
+      ══════════════════════════════════════════════════════ */}
+      <div className="relative w-full h-[45vh] sm:h-[55vh] lg:h-[65vh] overflow-hidden">
+        {/* ↓ swap this div for an <img> or next/image when you have the photo */}
+        <div className="absolute inset-0 bg-gradient-to-br from-green-900 via-[#071a0f] to-navy-950"
+          style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.03) 1.5px, transparent 1.5px)", backgroundSize: "22px 22px" }} />
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 70% at 30% 40%, rgba(34,197,94,0.12), transparent)" }} />
+        {/* Text overlay */}
+        <div className="absolute inset-0 flex flex-col justify-end p-8 sm:p-14 lg:p-20 bg-gradient-to-t from-navy-950/80 via-transparent to-transparent">
+          <p className="text-white/20 text-[10px] font-bold uppercase tracking-[0.2em] mb-3">WIBG 2026 · Grand Finale · Lagos</p>
+          <p className="text-white font-extrabold text-2xl sm:text-4xl lg:text-5xl leading-tight max-w-xl">
+            Six women.<br />One stage.<br /><span className="text-green-400">One life-changing night.</span>
+          </p>
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════════════════
+          WHO THIS IS FOR
+      ══════════════════════════════════════════════════════ */}
+      <section className="bg-[#07111f] py-20 sm:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-green-400 mb-5">Built for you if…</p>
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-white leading-tight mb-14 sm:mb-20">
+            You&apos;re a woman.<br />You have a business.<br />You&apos;re ready.
+          </h2>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[
+              { icon: "🌱", title: "You're just starting out",        desc: "You have a business idea or a very early-stage venture and you need capital and structure to launch properly." },
+              { icon: "📈", title: "You're already running",          desc: "Your business is live, you have customers or sales, and you're ready to take it to the next level with real funding." },
+              { icon: "🏦", title: "Banks keep saying no",           desc: "You've tried getting loans but couldn't meet the collateral requirements. Equity-free capital was made for this moment." },
+              { icon: "🤝", title: "You want the right investors",   desc: "Beyond the grant, you want to stand in front of VCs, angels, and press who are actually looking to back women founders." },
+              { icon: "🎓", title: "You want to build your skills",  desc: "You're hungry for training — legal, finance, marketing, tech — from experts who understand the Nigerian SME space." },
+              { icon: "🔥", title: "You're done waiting",            desc: "You're tired of being underfunded and overlooked. You have the drive. WIBG is the platform. July 4 is the date." },
+            ].map((card) => (
+              <div key={card.title}
+                className="group relative bg-white/[0.025] hover:bg-white/[0.045] border border-white/[0.07] hover:border-green-500/20 rounded-2xl p-7 sm:p-8 transition-all duration-200 cursor-default">
+                <span className="text-3xl mb-5 block">{card.icon}</span>
+                <p className="text-white font-bold text-base sm:text-[17px] mb-2.5 leading-snug">{card.title}</p>
+                <p className="text-gray-600 text-sm leading-relaxed">{card.desc}</p>
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-green-500/0 via-green-500/40 to-green-500/0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between bg-white/[0.02] border border-white/[0.06] rounded-2xl px-7 py-6">
+            <div>
+              <p className="text-white font-bold text-base mb-1">Deadline: June 24, 2026</p>
+              <p className="text-gray-500 text-sm">Applications close soon. Takes 15 minutes to apply.</p>
+            </div>
+            <Link href="/dashboard/wibg/apply"
+              className="flex-shrink-0 inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold px-7 py-3.5 rounded-xl transition-all text-sm whitespace-nowrap hover:-translate-y-px">
+              Apply Now →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════
           YOUR PATH TO THE STAGE
       ══════════════════════════════════════════════════════ */}
       <section id="journey" className="py-20 sm:py-28 bg-navy-950">

@@ -48,7 +48,14 @@ export default {
         "inner-glow": "inset 0 1px 0 rgba(255,255,255,0.1)",
       },
       animation: {
-        "spin-slow": "spin 3s linear infinite",
+        "spin-slow":   "spin 3s linear infinite",
+        "slide-up":    "slideUp 0.35s cubic-bezier(0.16,1,0.3,1) forwards",
+      },
+      keyframes: {
+        slideUp: {
+          "0%":   { opacity: "0", transform: "translateY(24px) scale(0.97)" },
+          "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
       },
     },
   },
