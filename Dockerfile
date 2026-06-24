@@ -22,4 +22,4 @@ RUN pnpm --filter @sme-mall/api db:generate && \
 
 EXPOSE 3001
 
-CMD ["sh", "-c", "npx prisma db push --schema=apps/api/prisma/schema.prisma && node apps/api/dist/server.js"]
+CMD ["sh", "-c", "pnpm exec prisma db push --schema=apps/api/prisma/schema.prisma && node apps/api/dist/server.js"]
