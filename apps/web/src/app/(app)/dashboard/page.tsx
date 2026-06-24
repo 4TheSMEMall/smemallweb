@@ -392,7 +392,7 @@ export default function BusinessOwnerDashboard() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-[9px] font-bold text-amber-600 uppercase tracking-widest">Grand Finale</p>
-                          <p className="text-xs font-black text-amber-900">July 4, 2026</p>
+                          <p className="text-xs font-black text-amber-900">Sep 12, 2026</p>
                         </div>
                         <div className="text-right flex-shrink-0">
                           <p className="text-[11px] font-black text-amber-700">₦3,000,000</p>

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { bhcApi } from "@/lib/bhcApi";
+import api from "@/lib/api";
 
 /* ── Nav ─────────────────────────────────────────────────────── */
 const navItems = [
@@ -43,7 +44,7 @@ const EMPTY: FormData = {
 const TC_ITEMS = [
   { id: "gender",  label: "I confirm that my business is owned or run by a woman." },
   { id: "bhc",     label: "I understand that the ₦15,000 BHC fee is not refundable and does not guarantee that I will be shortlisted." },
-  { id: "webinar", label: "I will attend the June training sessions — at least 2 out of 3 weekends, for both Saturday and Sunday each." },
+  { id: "webinar", label: "I will attend the August training sessions — at least 2 out of 3 weekends, for both Saturday and Sunday each." },
   { id: "agree",   label: "I agree to all the rules and decisions of the WIBG 2026 team." },
 ];
 
@@ -78,6 +79,8 @@ export default function WibgApplyPage() {
   const [loading, setLoading]     = useState(false);
   const [receiptId, setReceiptId] = useState("");
 
+  const [alreadyApplied, setAlreadyApplied] = useState<boolean | null>(null);
+
   const [bhcLaunched, setBhcLaunched]   = useState(false);
   const [bhcLaunching, setBhcLaunching] = useState(false);
   const [bhcChecking, setBhcChecking]   = useState(false);
@@ -85,6 +88,12 @@ export default function WibgApplyPage() {
 
   const tcAllChecked = TC_ITEMS.every((t) => tcChecked[t.id]);
   const currentIdx   = STEPS.findIndex((s) => s.key === step);
+
+  useEffect(() => {
+    api.get<{ success: boolean; data: { id: string } | null }>("/wibg/my-status")
+      .then((r) => setAlreadyApplied(r.data.data !== null))
+      .catch(() => setAlreadyApplied(false));
+  }, []);
 
   useEffect(() => {
     if (step !== "bhc-step") return;
@@ -135,30 +144,23 @@ export default function WibgApplyPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wibg/apply`, {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({
-          ...form,
-          revenue3m: Number(form.revenue3m) || 0,
-          proj12m:   Number(form.proj12m)   || 0,
-          bhcRef:    bhcResult?.assessmentId ?? "",
-        }),
+      const res = await api.post<{ success: boolean; data: { id: string } }>("/wibg/apply", {
+        ...form,
+        revenue3m: Number(form.revenue3m) || 0,
+        proj12m:   Number(form.proj12m)   || 0,
+        bhcRef:    bhcResult?.assessmentId ?? "",
       });
-      const data = await res.json();
-      if (!res.ok) {
-        const fieldErrors = data.fields
-          ? Object.entries(data.fields as Record<string, string[]>)
-              .map(([f, msgs]) => `${f}: ${msgs.join(", ")}`)
-              .join(" · ")
-          : null;
-        throw new Error(fieldErrors ?? data.message ?? "Submission failed. Please try again.");
-      }
-      setReceiptId(data.data.id);
+      setReceiptId(res.data.data.id);
       setStep("success");
       window.scrollTo({ top: 0 });
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      const axiosErr = err as { response?: { data?: { message?: string; fields?: Record<string, string[]> } } };
+      const fieldErrors = axiosErr.response?.data?.fields
+        ? Object.entries(axiosErr.response.data.fields)
+            .map(([f, msgs]) => `${f}: ${msgs.join(", ")}`)
+            .join(" · ")
+        : null;
+      setError(fieldErrors ?? axiosErr.response?.data?.message ?? "Submission failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -167,6 +169,37 @@ export default function WibgApplyPage() {
   return (
     <DashboardLayout navItems={navItems}>
       <div className="max-w-2xl w-full">
+
+        {/* ── Already applied wall ────────────────────────── */}
+        {alreadyApplied === true && (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-8 sm:p-10 text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
+              <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-extrabold text-navy-900 mb-2">You&apos;ve already applied</h2>
+            <p className="text-gray-500 text-sm mb-6 max-w-sm mx-auto">
+              Your application has been received. Only one application per account is allowed. Track your status on the WIBG overview page.
+            </p>
+            <Link href="/dashboard/wibg"
+              className="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-800 text-white font-bold px-6 py-3 rounded-xl transition-all text-sm">
+              View My Application →
+            </Link>
+          </div>
+        )}
+
+        {/* ── Loading check ───────────────────────────────── */}
+        {alreadyApplied === null && (
+          <div className="flex items-center justify-center py-20">
+            <svg className="w-6 h-6 animate-spin text-gray-400" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+          </div>
+        )}
+
+        {alreadyApplied === false && <>
 
         {/* ── Breadcrumb ─────────────────────────────────── */}
         {step !== "success" && (
@@ -386,8 +419,8 @@ export default function WibgApplyPage() {
               {[
                 ["1. About WIBG", "By applying to WIBG 2026, you agree to follow all guidelines and rules set by the organising team in partnership with SME Mall."],
                 ["2. BHC Fee", "The ₦15,000 BHC fee is not refundable. Paying it does not mean you will be shortlisted or win."],
-                ["3. Training Attendance", "You must attend both Saturday and Sunday sessions for at least 2 of the 3 June weekends to remain eligible."],
-                ["4. Grand Finale", "If you are shortlisted among the top 6, you must be present in Lagos on July 4, 2026. Transport is your responsibility."],
+                ["3. Training Attendance", "You must attend both Saturday and Sunday sessions for at least 2 of the 3 August weekends to remain eligible."],
+                ["4. Grand Finale", "If you are shortlisted among the top 6, you must be present in Lagos on September 12, 2026. Transport is your responsibility."],
               ].map(([title, body]) => (
                 <div key={title}><p className="text-navy-900 font-semibold mb-0.5">{title}</p><p>{body}</p></div>
               ))}
@@ -653,6 +686,9 @@ export default function WibgApplyPage() {
             </div>
           </div>
         )}
+
+        </>}
+
       </div>
     </DashboardLayout>
   );

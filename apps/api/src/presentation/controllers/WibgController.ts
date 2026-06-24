@@ -14,6 +14,15 @@ export class WibgController {
 
   submitApplication = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      // Block re-submission by account email (catches users who change founderEmail in the form)
+      const accountEmail = req.user?.email;
+      if (accountEmail) {
+        const existing = await this.wibgRepo.findApplicationByEmail(accountEmail);
+        if (existing) {
+          res.status(409).json({ success: false, message: "You have already submitted a WIBG application. Only one application per account is allowed." });
+          return;
+        }
+      }
       const application = await this.submitApplicationUseCase.execute(req.body);
       sendApplicationReceivedEmail(
         application.founderEmail,

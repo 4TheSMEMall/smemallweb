@@ -15,11 +15,11 @@ const navItems = [
 
 /* ── Competition phases ──────────────────────────────────────── */
 const PHASES = [
-  { num: "01", label: "BHC Diagnostic",    date: "From Apr 1",    done: true,   active: false },
-  { num: "02", label: "Applications",      date: "Closed Jun 24", done: true,   active: false },
-  { num: "03", label: "Training Webinars", date: "Jun 7–22",      done: true,   active: false },
-  { num: "04", label: "Virtual Semi-Final",date: "Jun 28",        done: false,  active: true  },
-  { num: "05", label: "Grand Finale",      date: "Jul 4, Lagos",  done: false,  active: false },
+  { num: "01", label: "BHC Diagnostic",    date: "From Apr 1",      done: true,   active: false },
+  { num: "02", label: "Applications",      date: "Closes Jul 31",    done: false,  active: true  },
+  { num: "03", label: "Training Webinars", date: "Aug 8–23",        done: false,  active: false },
+  { num: "04", label: "Virtual Semi-Final",date: "TBD",             done: false,  active: false },
+  { num: "05", label: "Grand Finale",      date: "Sep 12, Lagos",   done: false,  active: false },
 ];
 
 /* ── Status config ───────────────────────────────────────────── */
@@ -28,10 +28,10 @@ const STATUS_CONFIG: Record<string, {
   bg: string; border: string; headCl: string; bodyCl: string; badgeCl: string;
   desc: string;
 }> = {
-  SUBMITTED:    { label: "Application Submitted",    emoji: "📩", bg: "bg-blue-50",   border: "border-blue-100",   headCl: "text-blue-900",    bodyCl: "text-blue-700",   badgeCl: "bg-blue-100 text-blue-800 border-blue-200",   desc: "Your application has been received. Our panel will review all submissions after the June 24 deadline." },
+  SUBMITTED:    { label: "Application Submitted",    emoji: "📩", bg: "bg-blue-50",   border: "border-blue-100",   headCl: "text-blue-900",    bodyCl: "text-blue-700",   badgeCl: "bg-blue-100 text-blue-800 border-blue-200",   desc: "Your application has been received. Our panel will review all submissions after the July 31 deadline." },
   UNDER_REVIEW: { label: "Under Review",             emoji: "🔍", bg: "bg-indigo-50", border: "border-indigo-100", headCl: "text-indigo-900",  bodyCl: "text-indigo-700", badgeCl: "bg-indigo-100 text-indigo-800 border-indigo-200", desc: "Our judging panel is actively reviewing your application. Results will be announced shortly." },
-  TOP_20:       { label: "Shortlisted — Top 20 🎉",  emoji: "⭐", bg: "bg-emerald-50",border: "border-emerald-200",headCl: "text-emerald-900", bodyCl: "text-emerald-700",badgeCl: "bg-emerald-100 text-emerald-800 border-emerald-200", desc: "You made the Top 20! Check your email for virtual pitch briefing details. The Semi-Final is June 28." },
-  TOP_6:        { label: "You're a Grand Finalist 🏆",emoji: "🏆", bg: "bg-amber-50",  border: "border-amber-200",  headCl: "text-amber-900",   bodyCl: "text-amber-700",  badgeCl: "bg-amber-100 text-amber-800 border-amber-200",   desc: "You're one of six finalists! Check your email for the Grand Finale briefing. See you in Lagos on July 4." },
+  TOP_20:       { label: "Shortlisted — Top 20 🎉",  emoji: "⭐", bg: "bg-emerald-50",border: "border-emerald-200",headCl: "text-emerald-900", bodyCl: "text-emerald-700",badgeCl: "bg-emerald-100 text-emerald-800 border-emerald-200", desc: "You made the Top 20! Check your email for virtual pitch briefing details. The Semi-Final date will be communicated via email." },
+  TOP_6:        { label: "You're a Grand Finalist 🏆",emoji: "🏆", bg: "bg-amber-50",  border: "border-amber-200",  headCl: "text-amber-900",   bodyCl: "text-amber-700",  badgeCl: "bg-amber-100 text-amber-800 border-amber-200",   desc: "You're one of six finalists! Check your email for the Grand Finale briefing. See you in Lagos on September 12." },
   WINNER_1ST:   { label: "1st Place Winner 🥇",      emoji: "🥇", bg: "bg-yellow-50", border: "border-yellow-200", headCl: "text-yellow-900",  bodyCl: "text-yellow-700", badgeCl: "bg-yellow-100 text-yellow-800 border-yellow-300", desc: "You won the WIBG 2026 Grand Prize of ₦1,500,000! Congratulations — you made history." },
   WINNER_2ND:   { label: "2nd Place Winner 🥈",      emoji: "🥈", bg: "bg-slate-50",  border: "border-slate-200",  headCl: "text-slate-900",   bodyCl: "text-slate-600",  badgeCl: "bg-slate-100 text-slate-700 border-slate-200",   desc: "You placed 2nd and won ₦1,000,000! Congratulations on an outstanding pitch." },
   WINNER_3RD:   { label: "3rd Place Winner 🥉",      emoji: "🥉", bg: "bg-orange-50", border: "border-orange-100", headCl: "text-orange-900",  bodyCl: "text-orange-700", badgeCl: "bg-orange-100 text-orange-800 border-orange-200", desc: "You placed 3rd and won ₦500,000! A brilliant performance — you should be incredibly proud." },
@@ -54,7 +54,7 @@ export default function WibgOverviewPage() {
   }, []);
 
   useEffect(() => {
-    const finale = new Date("2026-07-04T00:00:00");
+    const finale = new Date("2026-09-12T00:00:00");
     const now    = new Date();
     const diff   = Math.ceil((finale.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
     setDaysLeft(Math.max(0, diff));
@@ -146,7 +146,7 @@ export default function WibgOverviewPage() {
                   <p className="text-5xl font-black text-white leading-none mb-1">{daysLeft}</p>
                   <p className="text-[10px] font-bold text-green-400 uppercase tracking-widest">days</p>
                   <div className="mt-3 pt-3 border-t border-white/[0.06]">
-                    <p className="text-[10px] text-gray-500 font-medium">July 4 · Lagos</p>
+                    <p className="text-[10px] text-gray-500 font-medium">Sep 12 · Lagos</p>
                   </div>
                 </div>
               )}
@@ -237,7 +237,7 @@ export default function WibgOverviewPage() {
             { val: "₦3M",    label: "Total Prize Pool",    sub: "Equity-free capital",  cl: "text-green-600" },
             { val: "6",      label: "Finalists Selected",  sub: "From Top 20",          cl: "text-navy-900"  },
             { val: "500+",   label: "Live Audience",       sub: "Investors & press",     cl: "text-navy-900"  },
-            { val: "Jul 4",  label: "Grand Finale",        sub: "Lagos · Live event",    cl: "text-red-500"   },
+            { val: "Sep 12",  label: "Grand Finale",        sub: "Lagos · Live event",    cl: "text-red-500"   },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-2xl border border-gray-100 shadow-card p-4 sm:p-5">
               <p className={`text-2xl sm:text-3xl font-black leading-none mb-1 ${s.cl}`}>{s.val}</p>
@@ -254,7 +254,7 @@ export default function WibgOverviewPage() {
               <p className="text-[10px] font-black text-green-400/80 uppercase tracking-widest">Ace Your Pitch</p>
               <p className="text-xs text-gray-500 mt-0.5">5 things that separate finalists from winners</p>
             </div>
-            <span className="text-[10px] font-bold text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2.5 py-0.5 rounded-full">July 4 · Lagos</span>
+            <span className="text-[10px] font-bold text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2.5 py-0.5 rounded-full">Sep 12 · Lagos</span>
           </div>
           <div className="p-5 sm:p-6 space-y-3.5">
             {[
@@ -376,9 +376,9 @@ export default function WibgOverviewPage() {
           </div>
           <div className="divide-y divide-gray-50">
             {[
-              { weekend: "Weekend 1", dates: "Sat 7 & Sun 8 June 2026",  pillar: "Pillar 1 — Business Foundations & Legal"   },
-              { weekend: "Weekend 2", dates: "Sat 14 & Sun 15 June 2026", pillar: "Pillar 2 — Finance, Growth & Sales"        },
-              { weekend: "Weekend 3", dates: "Sat 21 & Sun 22 June 2026", pillar: "Pillar 3 — Pitching & Investor Readiness"  },
+              { weekend: "Weekend 1", dates: "Sat 8 & Sun 9 August 2026",   pillar: "Pillar 1 — Business Foundations & Legal"   },
+              { weekend: "Weekend 2", dates: "Sat 15 & Sun 16 August 2026", pillar: "Pillar 2 — Finance, Growth & Sales"        },
+              { weekend: "Weekend 3", dates: "Sat 22 & Sun 23 August 2026", pillar: "Pillar 3 — Pitching & Investor Readiness"  },
             ].map((w) => (
               <div key={w.weekend} className="px-5 sm:px-6 py-4 flex items-start gap-4">
                 <div className="w-8 h-8 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -388,13 +388,13 @@ export default function WibgOverviewPage() {
                   <p className="text-sm font-black text-navy-900">{w.weekend} — {w.dates}</p>
                   <p className="text-xs text-gray-500 mt-0.5">{w.pillar}</p>
                 </div>
-                <span className="text-[10px] font-bold text-gray-400 bg-gray-50 border border-gray-100 px-2.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0 mt-0.5">Completed</span>
+                <span className="text-[10px] font-bold text-blue-600 bg-blue-50 border border-blue-100 px-2.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0 mt-0.5">Upcoming</span>
               </div>
             ))}
           </div>
-          <div className="px-5 sm:px-6 py-3.5 bg-amber-50/60 border-t border-amber-100">
-            <p className="text-amber-700 text-[11px] leading-relaxed">
-              <strong>All sessions have passed.</strong> Applicants who attended at least 2 of 3 weekends (both days each) remain eligible for shortlisting.
+          <div className="px-5 sm:px-6 py-3.5 bg-blue-50/60 border-t border-blue-100">
+            <p className="text-blue-700 text-[11px] leading-relaxed">
+              <strong>Attendance is mandatory.</strong> You must attend both Saturday and Sunday for at least 2 of the 3 August weekends to remain eligible for shortlisting.
             </p>
           </div>
         </div>
@@ -408,10 +408,10 @@ export default function WibgOverviewPage() {
             <div className="space-y-0">
               {[
                 { num: "01", title: "BHC Diagnostic",     desc: "Complete the 20-question BHC via your SME Mall account. The ₦15,000 fee is your entry point.", date: "Opens Apr 1",  done: true,  active: false },
-                { num: "02", title: "Full Application",   desc: "Submit your profile, financials, CAC status, and a 2-minute pitch video link.", date: "Closed Jun 24", done: true,  active: false },
-                { num: "03", title: "Capacity Webinars",  desc: "Attend Saturday and Sunday training across at least 2 of 3 June weekends. Mandatory for shortlisting.", date: "Jun 7–22",   done: true,  active: false },
-                { num: "04", title: "Virtual Semi-Final", desc: "Top 20 applicants pitch virtually. Six finalists advance to the Grand Finale.", date: "Jun 28",      done: false, active: true  },
-                { num: "05", title: "Grand Finale",       desc: "Six finalists pitch live at the SME Mall stage before 500+ attendees, investors, and press.", date: "Jul 4, Lagos", done: false, active: false },
+                { num: "02", title: "Full Application",   desc: "Submit your profile, financials, CAC status, and a 2-minute pitch video link.", date: "Closes Jul 31", done: false, active: true  },
+                { num: "03", title: "Capacity Webinars",  desc: "Attend Saturday and Sunday training across at least 2 of 3 August weekends. Mandatory for shortlisting.", date: "Aug 8–23",    done: false, active: false },
+                { num: "04", title: "Virtual Semi-Final", desc: "Top 20 applicants pitch virtually. Six finalists advance to the Grand Finale.", date: "TBD",          done: false, active: false },
+                { num: "05", title: "Grand Finale",       desc: "Six finalists pitch live at the SME Mall stage before 500+ attendees, investors, and press.", date: "Sep 12, Lagos", done: false, active: false },
               ].map((s, i, arr) => (
                 <div key={s.num} className="flex gap-4">
                   {/* Left: number + line */}
@@ -460,8 +460,8 @@ export default function WibgOverviewPage() {
               "Business majority female-owned or co-founded and managed by a woman",
               "₦15,000 BHC diagnostic fee paid via SME Mall account",
               "Video pitch (2 minutes max) posted publicly and SME Mall tagged",
-              "Attend at least 2 of 3 June training weekends (both days each)",
-              "Available in Lagos on July 4, 2026 if shortlisted as a finalist",
+              "Attend at least 2 of 3 August training weekends (both days each)",
+              "Available in Lagos on September 12, 2026 if shortlisted as a finalist",
               "Application submitted before June 24, 2026 deadline",
             ].map((req) => (
               <div key={req} className="flex items-start gap-2.5">
@@ -483,7 +483,7 @@ export default function WibgOverviewPage() {
               style={{ background: "radial-gradient(circle, rgba(34,197,94,0.1) 0%, transparent 65%)" }} />
             <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 p-6 sm:p-8">
               <div>
-                <p className="text-[10px] font-black text-green-400/60 uppercase tracking-widest mb-1.5">Deadline: June 24, 2026</p>
+                <p className="text-[10px] font-black text-green-400/60 uppercase tracking-widest mb-1.5">Deadline: July 31, 2026</p>
                 <p className="text-white font-black text-xl sm:text-2xl mb-1">Ready to pitch for ₦1.5M?</p>
                 <p className="text-gray-500 text-sm">Takes about 15 minutes to apply.</p>
               </div>

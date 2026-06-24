@@ -15,7 +15,7 @@ export default function PartnerDashboard() {
     <DashboardLayout navItems={navItems}>
       <div className="max-w-5xl space-y-8">
 
-        <div className="relative bg-navy-900 rounded-3xl p-8 overflow-hidden">
+        <div className="relative bg-navy-900 rounded-3xl p-6 sm:p-8 overflow-hidden">
           <div className="absolute inset-0 bg-dots opacity-20" />
           <div className="absolute right-0 top-0 w-64 h-full bg-gradient-radial from-blue-500/20 via-transparent to-transparent pointer-events-none" />
           <div className="relative">

@@ -50,7 +50,7 @@ export function createWibgRouter(
   const router = Router();
 
   router.get("/my-status", authenticate, controller.getMyStatus);
-  router.post("/apply",    applyLimiter, validate(applySchema), controller.submitApplication);
+  router.post("/apply",    authenticate, applyLimiter, validate(applySchema), controller.submitApplication);
   router.post("/attend",   validate(attendSchema), controller.registerAttendee);
 
   return router;

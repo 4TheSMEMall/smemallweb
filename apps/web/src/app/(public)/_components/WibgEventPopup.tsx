@@ -2,13 +2,17 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
 
 const STORAGE_KEY = "smemall_wibg2026_popup_seen";
-const FINALE_DATE = new Date("2026-07-04T00:00:00");
+const FINALE_DATE = new Date("2026-09-12T00:00:00");
 
 export function WibgEventPopup() {
+  const { user } = useAuth();
   const [visible, setVisible] = useState(false);
   const [daysLeft, setDaysLeft] = useState(0);
+
+  const applyHref = user ? "/dashboard/wibg" : "/login?returnTo=/dashboard/wibg";
 
   useEffect(() => {
     const diff = Math.ceil((FINALE_DATE.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
@@ -72,7 +76,7 @@ export function WibgEventPopup() {
 
           <h2 className="text-white font-black text-xl sm:text-2xl leading-snug mb-2">
             ₦3,000,000 up for grabs.<br />
-            <span className="text-green-400">July 4 · Lagos.</span>
+            <span className="text-green-400">September 12 · Lagos.</span>
           </h2>
           <p className="text-gray-500 text-sm leading-relaxed mb-6">
             The Women in Business Grant Competition is live. Six women will pitch live in front of investors and press for equity-free capital.
@@ -88,7 +92,7 @@ export function WibgEventPopup() {
               </div>
               <div className="w-px h-8 bg-white/[0.08]" />
               <div>
-                <p className="text-xs font-bold text-gray-300">Grand Finale · July 4, 2026</p>
+                <p className="text-xs font-bold text-gray-300">Grand Finale · September 12, 2026</p>
                 <p className="text-[11px] text-gray-600 mt-0.5">Landmark Event Centre · Lagos</p>
               </div>
             </div>
@@ -117,7 +121,7 @@ export function WibgEventPopup() {
           {/* CTAs */}
           <div className="flex gap-3">
             <Link
-              href="/dashboard/wibg"
+              href={applyHref}
               onClick={dismiss}
               className="flex-1 flex items-center justify-center gap-1.5 bg-green-500 hover:bg-green-600 text-white font-black px-5 py-3 rounded-xl text-sm transition-all hover:-translate-y-px shadow-lg shadow-green-500/20"
             >
