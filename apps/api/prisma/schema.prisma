@@ -76,6 +76,7 @@ model WibgApplication {
   bizStage       String   @map("biz_stage")
   pitchVideoLink String?  @map("pitch_video_link")
   status         String   @default("SUBMITTED")
+  videoTagged    Boolean  @default(false) @map("video_tagged")
   adminNotes     String?  @map("admin_notes")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")

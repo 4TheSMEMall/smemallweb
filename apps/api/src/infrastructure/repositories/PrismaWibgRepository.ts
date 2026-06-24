@@ -54,6 +54,19 @@ export class PrismaWibgRepository {
     return this.prisma.wibgApplication.findUnique({ where: { id } });
   }
 
+  async findApplicationByEmail(email: string) {
+    return this.prisma.wibgApplication.findFirst({
+      where: { founderEmail: { equals: email, mode: "insensitive" } },
+    });
+  }
+
+  async updateVideoTagged(id: string, tagged: boolean) {
+    return this.prisma.wibgApplication.update({
+      where: { id },
+      data: { videoTagged: tagged },
+    });
+  }
+
   async findApplications(filters: AdminApplicationFilters = {}) {
     const { status, search, page = 1, limit = 20 } = filters;
     const where = {

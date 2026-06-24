@@ -62,7 +62,7 @@ export function createApp(): Express {
     saveBhcResultUseCase,
     process.env.BHC_WEBHOOK_SECRET ?? "change-me"
   );
-  const wibgController = new WibgController(submitApplicationUseCase, registerAttendeeUseCase);
+  const wibgController = new WibgController(submitApplicationUseCase, registerAttendeeUseCase, wibgRepo);
 
   const bhcController = new BhcController(
     getBhcHistoryUseCase,
@@ -119,7 +119,7 @@ export function createApp(): Express {
 
   app.use("/api/auth",     authLimiter, createAuthRouter(authController, authenticate));
   app.use("/api/bhc",      createBhcRouter(bhcController, authenticate));
-  app.use("/api/wibg",     createWibgRouter(wibgController));
+  app.use("/api/wibg",     createWibgRouter(wibgController, authenticate));
   app.use("/api/admin",    createAdminRouter(adminController, tokenService));
 
   app.use(errorHandler);

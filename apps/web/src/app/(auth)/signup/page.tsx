@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { UserRole } from "@sme-mall/shared";
@@ -42,6 +42,14 @@ interface FormState {
 }
 
 export default function SignupPage() {
+  return (
+    <Suspense>
+      <SignupForm />
+    </Suspense>
+  );
+}
+
+function SignupForm() {
   const { register } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();

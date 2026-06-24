@@ -1,12 +1,14 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import api from "@/lib/api";
 
 const navItems = [
-  { label: "Dashboard",   path: "/dashboard",         icon: <GridIcon /> },
-  { label: "BHC",         path: "/dashboard/bhc",     icon: <ClipboardIcon /> },
-  { label: "WIBG 2026",   path: "/dashboard/wibg",    icon: <TrophyIcon /> },
+  { label: "Dashboard",   path: "/dashboard",          icon: <GridIcon /> },
+  { label: "BHC",         path: "/dashboard/bhc",      icon: <ClipboardIcon /> },
+  { label: "WIBG 2026",   path: "/dashboard/wibg",     icon: <TrophyIcon /> },
   { label: "My Services", path: "/dashboard/services", icon: <AppsIcon /> },
   { label: "Profile",     path: "/dashboard/profile",  icon: <UserIcon /> },
 ];
@@ -19,10 +21,64 @@ const JOURNEY = [
   { num: "05", title: "Grand Finale",      desc: "Six finalists pitch live at the SME Mall stage before 500+ attendees, investors, and press.", date: "July 4, Lagos" },
 ];
 
+const STATUS_LABELS: Record<string, { label: string; badge: string; desc: string }> = {
+  SUBMITTED:    { label: "Application Submitted",    badge: "bg-blue-50 text-blue-700 border-blue-100",    desc: "Your application has been received. Our panel will begin reviewing after the June 24 deadline." },
+  UNDER_REVIEW: { label: "Under Review",             badge: "bg-indigo-50 text-indigo-700 border-indigo-100", desc: "Our judging panel is actively reviewing your application." },
+  TOP_20:       { label: "Shortlisted — Top 20 🎉",  badge: "bg-green-50 text-green-700 border-green-100",  desc: "Congratulations! You've been shortlisted. Check your email for your virtual pitch details." },
+  TOP_6:        { label: "Finalist — Top 6 🏆",      badge: "bg-amber-50 text-amber-700 border-amber-100",  desc: "You're a Grand Finale finalist! Check your email for event briefing details." },
+  WINNER_1ST:   { label: "1st Place Winner 🥇",      badge: "bg-yellow-50 text-yellow-700 border-yellow-100", desc: "Congratulations! You won the WIBG 2026 Grand Prize of ₦1,500,000." },
+  WINNER_2ND:   { label: "2nd Place Winner 🥈",      badge: "bg-gray-50 text-gray-700 border-gray-200",    desc: "Congratulations! You placed 2nd and won ₦1,000,000." },
+  WINNER_3RD:   { label: "3rd Place Winner 🥉",      badge: "bg-orange-50 text-orange-700 border-orange-100", desc: "Congratulations! You placed 3rd and won ₦500,000." },
+  REJECTED:     { label: "Application Reviewed",     badge: "bg-red-50 text-red-700 border-red-100",       desc: "Thank you for applying. You'll receive a detailed update via email." },
+};
+
+interface WibgApplication {
+  id: string;
+  businessName: string;
+  status: string;
+  createdAt: string;
+}
+
 export default function WibgOverviewPage() {
+  const [application, setApplication] = useState<WibgApplication | null | undefined>(undefined);
+
+  useEffect(() => {
+    api.get<{ success: boolean; data: WibgApplication | null }>("/wibg/my-status")
+      .then((r) => setApplication(r.data.data))
+      .catch(() => setApplication(null));
+  }, []);
+
+  const applied = !!application;
+  const statusInfo = application ? (STATUS_LABELS[application.status] ?? { label: application.status, badge: "bg-gray-50 text-gray-600 border-gray-100", desc: "" }) : null;
+
   return (
     <DashboardLayout navItems={navItems}>
       <div className="max-w-4xl w-full space-y-6">
+
+        {/* ── Application status banner (shown if already applied) ── */}
+        {application && statusInfo && (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap mb-1">
+                  <p className="text-navy-900 font-bold text-sm">{application.businessName}</p>
+                  <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${statusInfo.badge}`}>
+                    {statusInfo.label}
+                  </span>
+                </div>
+                <p className="text-gray-500 text-sm">{statusInfo.desc}</p>
+                <p className="text-gray-400 text-xs mt-1">
+                  Applied {new Date(application.createdAt).toLocaleDateString("en-NG", { day: "numeric", month: "long", year: "numeric" })}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── Hero banner ─────────────────────────────────── */}
         <div className="relative bg-navy-900 rounded-2xl sm:rounded-3xl overflow-hidden">
@@ -42,15 +98,24 @@ export default function WibgOverviewPage() {
               Win equity-free capital, expert mentorship, and direct investor access.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Link
-                href="/dashboard/wibg/apply"
-                className="inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold px-7 py-3 rounded-xl transition-all text-sm"
-              >
-                Apply to Pitch
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-              </Link>
+              {applied ? (
+                <div className="inline-flex items-center gap-2 bg-green-500/20 border border-green-500/30 text-green-400 font-bold px-7 py-3 rounded-xl text-sm cursor-default select-none">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Application Submitted
+                </div>
+              ) : (
+                <Link
+                  href="/dashboard/wibg/apply"
+                  className="inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold px-7 py-3 rounded-xl transition-all text-sm"
+                >
+                  Apply to Pitch
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                </Link>
+              )}
               <Link
                 href="/wibg"
                 target="_blank"
@@ -181,20 +246,22 @@ export default function WibgOverviewPage() {
           </div>
         </div>
 
-        {/* ── Bottom CTA ───────────────────────────────────── */}
-        <div className="bg-green-500 rounded-2xl p-7 sm:p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
-          <div>
-            <p className="text-green-900/60 text-xs font-bold uppercase tracking-widest mb-1">Deadline: June 24, 2026</p>
-            <p className="text-white font-extrabold text-xl">Ready to pitch for ₦1.5M?</p>
-            <p className="text-green-100/70 text-sm mt-1">Start your application — takes about 15 minutes.</p>
+        {/* ── Bottom CTA (only shown if not yet applied) ───── */}
+        {!applied && (
+          <div className="bg-green-500 rounded-2xl p-7 sm:p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+            <div>
+              <p className="text-green-900/60 text-xs font-bold uppercase tracking-widest mb-1">Deadline: June 24, 2026</p>
+              <p className="text-white font-extrabold text-xl">Ready to pitch for ₦1.5M?</p>
+              <p className="text-green-100/70 text-sm mt-1">Start your application — takes about 15 minutes.</p>
+            </div>
+            <Link
+              href="/dashboard/wibg/apply"
+              className="flex-shrink-0 inline-flex items-center gap-2 bg-white text-green-700 font-bold px-7 py-3.5 rounded-xl hover:bg-green-50 transition-all text-sm whitespace-nowrap"
+            >
+              Start Application →
+            </Link>
           </div>
-          <Link
-            href="/dashboard/wibg/apply"
-            className="flex-shrink-0 inline-flex items-center gap-2 bg-white text-green-700 font-bold px-7 py-3.5 rounded-xl hover:bg-green-50 transition-all text-sm whitespace-nowrap"
-          >
-            Start Application →
-          </Link>
-        </div>
+        )}
 
       </div>
     </DashboardLayout>

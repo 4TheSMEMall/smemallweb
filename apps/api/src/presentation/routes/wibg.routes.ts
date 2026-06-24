@@ -1,7 +1,18 @@
 import { Router } from "express";
 import { z } from "zod";
+import rateLimit from "express-rate-limit";
 import { validate } from "../middleware/validate";
 import type { WibgController } from "../controllers/WibgController";
+import type { RequestHandler } from "express";
+
+const applyLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5,
+  keyGenerator: (req) => req.ip ?? "unknown",
+  message: { success: false, message: "Too many submission attempts from this IP. Please try again later." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 const applySchema = z.object({
   founderName:    z.string().min(2, "Founder name is required"),
@@ -18,7 +29,10 @@ const applySchema = z.object({
   proj12m:        z.coerce.number().min(0),
   bhcRef:         z.string().min(1, "BHC reference is required"),
   bizStage:       z.string().min(1, "Business stage is required"),
-  pitchVideoLink: z.string().optional(),
+  pitchVideoLink: z.string().optional().refine(
+    (v) => !v || v.startsWith("http://") || v.startsWith("https://"),
+    "Pitch video link must be a valid URL (http or https)",
+  ),
 });
 
 const attendSchema = z.object({
@@ -29,11 +43,15 @@ const attendSchema = z.object({
   notes: z.string().optional(),
 });
 
-export function createWibgRouter(controller: WibgController): Router {
+export function createWibgRouter(
+  controller: WibgController,
+  authenticate: RequestHandler,
+): Router {
   const router = Router();
 
-  router.post("/apply",  validate(applySchema),  controller.submitApplication);
-  router.post("/attend", validate(attendSchema),  controller.registerAttendee);
+  router.get("/my-status", authenticate, controller.getMyStatus);
+  router.post("/apply",    applyLimiter, validate(applySchema), controller.submitApplication);
+  router.post("/attend",   validate(attendSchema), controller.registerAttendee);
 
   return router;
 }

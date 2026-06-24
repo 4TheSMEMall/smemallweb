@@ -193,6 +193,44 @@ export async function sendStatusEmail(
   await send({ email: founderEmail, name: founderName }, cfg.subject, html);
 }
 
+export async function sendVideoReminderEmail(
+  founderEmail: string,
+  founderName: string,
+  businessName: string,
+) {
+  const firstName = founderName.split(" ")[0];
+  const html = base(`
+    <div style="text-align:center;margin-bottom:8px;">
+      ${badge("Action Required", "#fff7ed", "#9a3412")}
+    </div>
+    <h1 style="color:#0a1628;font-size:22px;font-weight:800;margin:0 0 16px;text-align:center;">Tag us in your pitch video</h1>
+    <p style="color:#374151;font-size:15px;line-height:1.7;margin:0 0 16px;">
+      Hi <strong>${firstName}</strong>,<br><br>
+      Thank you for submitting your WIBG 2026 application for <strong>${businessName}</strong>. While reviewing your application, our team noticed that your pitch video does not appear to tag or mention <strong>@SME Mall</strong> / <strong>@WIBG 2026</strong>.
+    </p>
+    <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:20px 24px;margin:20px 0;">
+      <p style="margin:0 0 10px;color:#9a3412;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">What you need to do</p>
+      <ul style="color:#374151;font-size:14px;line-height:1.9;margin:0;padding-left:20px;">
+        <li>Re-upload or update your 2-minute pitch video</li>
+        <li>Ensure the video title or description tags <strong>SME Mall</strong> or <strong>#WIBG2026</strong></li>
+        <li>Reply to this email with your updated video link</li>
+      </ul>
+    </div>
+    <p style="color:#374151;font-size:14px;line-height:1.7;margin:0;">
+      <strong>Important:</strong> Your application will remain in <em>Submitted</em> status until this is verified. Please action this as soon as possible — applications close <strong>June 24, 2026</strong>.
+    </p>
+    <div style="text-align:center;">
+      ${btn("View Your Application", "https://thesmemall.com/dashboard/wibg")}
+    </div>
+  `);
+
+  await send(
+    { email: founderEmail, name: founderName },
+    "Action Required: Tag SME Mall in Your Pitch Video — WIBG 2026",
+    html,
+  );
+}
+
 export async function sendApplicationReceivedEmail(
   founderEmail: string,
   founderName: string,

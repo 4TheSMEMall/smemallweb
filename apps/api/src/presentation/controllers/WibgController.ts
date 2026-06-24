@@ -1,13 +1,15 @@
 import type { Request, Response, NextFunction } from "express";
 import type { SubmitApplicationUseCase } from "../../application/use-cases/wibg/SubmitApplicationUseCase";
 import type { RegisterAttendeeUseCase } from "../../application/use-cases/wibg/RegisterAttendeeUseCase";
+import type { PrismaWibgRepository } from "../../infrastructure/repositories/PrismaWibgRepository";
 import type { ApiResponse } from "@sme-mall/shared";
 import { sendApplicationReceivedEmail } from "../../infrastructure/services/BrevoEmailService";
 
 export class WibgController {
   constructor(
     private readonly submitApplicationUseCase: SubmitApplicationUseCase,
-    private readonly registerAttendeeUseCase: RegisterAttendeeUseCase
+    private readonly registerAttendeeUseCase: RegisterAttendeeUseCase,
+    private readonly wibgRepo: PrismaWibgRepository,
   ) {}
 
   submitApplication = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -23,6 +25,17 @@ export class WibgController {
         success: true,
         data: { id: application.id, submittedAt: application.createdAt },
       } satisfies ApiResponse<{ id: string; submittedAt: Date }>);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  getMyStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const email = req.user?.email;
+      if (!email) { res.status(401).json({ success: false, message: "Unauthorized" }); return; }
+      const application = await this.wibgRepo.findApplicationByEmail(email);
+      res.json({ success: true, data: application });
     } catch (err) {
       next(err);
     }

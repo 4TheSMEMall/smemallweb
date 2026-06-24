@@ -17,6 +17,8 @@ export function createAdminRouter(
   router.get("/wibg",                           controller.getApplications);
   router.get("/wibg/:id",                       controller.getApplication);
   router.patch("/wibg/:id/status",              controller.updateApplicationStatus);
+  router.post("/wibg/:id/video-reminder",       controller.sendVideoReminder);
+  router.patch("/wibg/:id/video-tag",           controller.toggleVideoTag);
   router.get("/users",                          controller.getUsers);
   router.patch("/users/:id/status",             controller.updateUserStatus);
 

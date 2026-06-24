@@ -3,6 +3,7 @@ import type { GetAdminStatsUseCase } from "../../application/use-cases/admin/Get
 import type { PrismaWibgRepository, WibgApplicationStatus } from "../../infrastructure/repositories/PrismaWibgRepository";
 import type { UpdateApplicationStatusUseCase } from "../../application/use-cases/wibg/UpdateApplicationStatusUseCase";
 import type { IUserRepository } from "../../domain/repositories/IUserRepository";
+import { sendVideoReminderEmail } from "../../infrastructure/services/BrevoEmailService";
 
 const VALID_STATUSES: WibgApplicationStatus[] = [
   "SUBMITTED", "UNDER_REVIEW", "TOP_20", "TOP_6",
@@ -52,6 +53,26 @@ export class AdminController {
         res.status(400).json({ success: false, message: "Invalid status" }); return;
       }
       const updated = await this.updateStatusUseCase.execute(req.params.id as string, status, adminNotes);
+      res.json({ success: true, data: updated });
+    } catch (err) { next(err); }
+  };
+
+  sendVideoReminder = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const app = await this.wibgRepo.findApplicationById(req.params.id as string);
+      if (!app) { res.status(404).json({ success: false, message: "Not found" }); return; }
+      await sendVideoReminderEmail(app.founderEmail, app.founderName, app.businessName);
+      res.json({ success: true, message: "Video reminder email sent to " + app.founderEmail });
+    } catch (err) { next(err); }
+  };
+
+  toggleVideoTag = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { tagged } = req.body as { tagged: boolean };
+      if (typeof tagged !== "boolean") {
+        res.status(400).json({ success: false, message: "tagged must be a boolean" }); return;
+      }
+      const updated = await this.wibgRepo.updateVideoTagged(req.params.id as string, tagged);
       res.json({ success: true, data: updated });
     } catch (err) { next(err); }
   };

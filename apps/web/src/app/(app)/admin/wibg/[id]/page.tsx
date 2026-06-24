@@ -51,7 +51,9 @@ interface Application {
   proj12m: number;
   bizStage: string;
   bhcRef?: string;
+  pitchVideoLink?: string;
   status: string;
+  videoTagged: boolean;
   adminNotes?: string;
   createdAt: string;
 }
@@ -60,11 +62,12 @@ export default function ApplicationDetailPage() {
   const params = useParams();
   const id     = params?.id as string;
 
-  const [app, setApp]         = useState<Application | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving]   = useState(false);
-  const [notes, setNotes]     = useState("");
-  const [toast, setToast]     = useState<{ msg: string; ok: boolean } | null>(null);
+  const [app, setApp]             = useState<Application | null>(null);
+  const [loading, setLoading]     = useState(true);
+  const [saving, setSaving]       = useState(false);
+  const [videoSending, setVideoSending] = useState(false);
+  const [notes, setNotes]         = useState("");
+  const [toast, setToast]         = useState<{ msg: string; ok: boolean } | null>(null);
 
   useEffect(() => {
     api.get<{ success: boolean; data: Application }>(`/admin/wibg/${id}`)
@@ -86,6 +89,34 @@ export default function ApplicationDetailPage() {
       showToast("Status updated and email sent.", true);
     } catch {
       showToast("Failed to update status.", false);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function sendVideoReminder() {
+    if (!app) return;
+    if (!confirm(`Send video-tag reminder email to ${app.founderEmail}?`)) return;
+    setVideoSending(true);
+    try {
+      await api.post(`/admin/wibg/${id}/video-reminder`);
+      showToast("Video reminder email sent.", true);
+    } catch {
+      showToast("Failed to send reminder email.", false);
+    } finally {
+      setVideoSending(false);
+    }
+  }
+
+  async function toggleVideoTag(tagged: boolean) {
+    if (!app) return;
+    setSaving(true);
+    try {
+      const r = await api.patch<{ success: boolean; data: Application }>(`/admin/wibg/${id}/video-tag`, { tagged });
+      setApp(r.data.data);
+      showToast(tagged ? "Marked as tagged." : "Marked as not tagged.", true);
+    } catch {
+      showToast("Failed to update video tag status.", false);
     } finally {
       setSaving(false);
     }
@@ -227,6 +258,42 @@ export default function ApplicationDetailPage() {
               >
                 {saving ? "Saving…" : "Save Notes"}
               </button>
+            </div>
+
+            {/* Video tag */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-5">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Pitch Video</p>
+              {app.pitchVideoLink ? (
+                <a
+                  href={app.pitchVideoLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-sm text-blue-600 hover:text-blue-700 underline break-all mb-3"
+                >
+                  {app.pitchVideoLink}
+                </a>
+              ) : (
+                <p className="text-gray-400 text-xs mb-3 italic">No video link submitted</p>
+              )}
+              <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-semibold mb-3 ${app.videoTagged ? "bg-green-50 border-green-100 text-green-700" : "bg-amber-50 border-amber-100 text-amber-700"}`}>
+                <span>{app.videoTagged ? "✓ SME Mall tagged" : "⚠ Not yet tagged"}</span>
+              </div>
+              <div className="space-y-2">
+                <button
+                  onClick={() => toggleVideoTag(!app.videoTagged)}
+                  disabled={saving}
+                  className="w-full py-2.5 rounded-xl text-sm font-bold transition-all disabled:opacity-50 bg-navy-900 hover:bg-navy-800 text-white"
+                >
+                  {saving ? "Updating…" : app.videoTagged ? "Mark as Not Tagged" : "Mark as Tagged"}
+                </button>
+                <button
+                  onClick={sendVideoReminder}
+                  disabled={videoSending || app.videoTagged}
+                  className="w-full py-2.5 rounded-xl text-sm font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-amber-500 hover:bg-amber-600 text-white"
+                >
+                  {videoSending ? "Sending…" : "Send Tag Reminder Email"}
+                </button>
+              </div>
             </div>
 
             {/* Status actions */}
