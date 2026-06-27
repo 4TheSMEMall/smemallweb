@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { UserRole } from "@sme-mall/shared";
@@ -90,13 +91,8 @@ function SignupForm() {
         <div className="absolute inset-0 bg-dots opacity-30" />
         <div className="absolute inset-0 bg-gradient-radial from-red-500/10 via-transparent to-transparent" />
 
-        <Link href="/" className="relative flex items-center gap-2">
-          <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
-            <span className="text-white font-extrabold text-xs">SM</span>
-          </div>
-          <span className="text-white font-extrabold text-lg">
-            SME<span className="text-red-400"> Mall</span>
-          </span>
+        <Link href="/" className="relative">
+          <Image src="/logo.png" alt="SME Mall" width={130} height={36} className="h-9 w-auto" priority />
         </Link>
 
         <div className="relative">
@@ -130,13 +126,8 @@ function SignupForm() {
       <div className="flex-1 bg-white flex items-center justify-center p-8 overflow-y-auto">
         <div className="w-full max-w-md py-8">
           <div className="lg:hidden mb-10">
-            <Link href="/" className="inline-flex items-center gap-2">
-              <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-extrabold text-xs">SM</span>
-              </div>
-              <span className="text-navy-900 font-extrabold text-lg">
-                SME<span className="text-red-500"> Mall</span>
-              </span>
+            <Link href="/">
+              <Image src="/logo.png" alt="SME Mall" width={120} height={32} className="h-8 w-auto" />
             </Link>
           </div>
 

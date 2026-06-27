@@ -5,6 +5,17 @@ export interface SectionScore {
   percentage: number;
 }
 
+export type GapPriority = "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+
+export interface Gap {
+  gap_title: string;
+  section: string;
+  description: string;
+  priority: GapPriority;
+  needs_provider: boolean;
+  service_tag: string | null;
+}
+
 export class BhcResultEntity {
   constructor(
     public readonly id: string,
@@ -15,6 +26,7 @@ export class BhcResultEntity {
     public readonly percentage: number,
     public readonly status: string,
     public readonly sectionScores: SectionScore[],
+    public readonly gaps: Gap[],
     public readonly completedAt: Date,
     public readonly createdAt: Date
   ) {}

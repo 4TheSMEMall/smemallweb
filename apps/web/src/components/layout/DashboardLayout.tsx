@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, type ReactNode } from "react";
@@ -34,13 +35,8 @@ export function DashboardLayout({ navItems, children }: { navItems: NavItem[]; c
   const SidebarContent = () => (
     <aside className="flex flex-col h-full bg-navy-900 text-white w-64">
       <div className="p-5 border-b border-white/10 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-red-500 rounded-lg flex items-center justify-center">
-            <span className="text-white font-extrabold text-xs">SM</span>
-          </div>
-          <span className="font-extrabold text-lg">
-            SME<span className="text-red-400"> Mall</span>
-          </span>
+        <Link href="/">
+          <Image src="/logo.png" alt="SME Mall" width={120} height={32} className="h-8 w-auto" priority />
         </Link>
         {/* Close button — mobile only */}
         <button
@@ -114,13 +110,8 @@ export function DashboardLayout({ navItems, children }: { navItems: NavItem[]; c
           </svg>
         </button>
 
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-6 h-6 bg-red-500 rounded-md flex items-center justify-center">
-            <span className="text-white font-extrabold text-[10px]">SM</span>
-          </div>
-          <span className="text-white font-extrabold text-base">
-            SME<span className="text-red-400"> Mall</span>
-          </span>
+        <Link href="/">
+          <Image src="/logo.png" alt="SME Mall" width={110} height={28} className="h-7 w-auto" priority />
         </Link>
 
         <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">

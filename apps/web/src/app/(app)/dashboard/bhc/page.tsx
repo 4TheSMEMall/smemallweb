@@ -353,6 +353,27 @@ export default function BhcPage() {
               </div>
             </div>
 
+            {/* ── Fix My Gaps CTA ───────────────────────────── */}
+            <Link
+              href="/dashboard/bhc/gaps"
+              className="relative flex items-center justify-between gap-4 bg-navy-900 hover:bg-navy-800 rounded-2xl p-5 sm:p-6 transition-all group overflow-hidden"
+            >
+              <div className="absolute inset-0 pointer-events-none"
+                style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.025) 1.5px, transparent 1.5px)", backgroundSize: "20px 20px" }} />
+              <div className="relative">
+                <p className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1">Your Fix-It Plan</p>
+                <p className="text-white font-extrabold text-base sm:text-lg">
+                  {latest.gaps?.length
+                    ? `${latest.gaps.length} gap${latest.gaps.length > 1 ? "s" : ""} found — see what to fix`
+                    : "View your gaps and what to fix"}
+                </p>
+              </div>
+              <span className="relative flex-shrink-0 inline-flex items-center gap-2 bg-red-500 group-hover:bg-red-600 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all whitespace-nowrap">
+                Fix My Gaps
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+              </span>
+            </Link>
+
             {/* ── Expiry badge ──────────────────────────────── */}
             <BhcExpiryBadge
               completedAt={latest.completedAt}

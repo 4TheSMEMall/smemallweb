@@ -1,4 +1,4 @@
-import type { BhcResultEntity, SectionScore } from "../entities/BhcResult";
+import type { BhcResultEntity, SectionScore, Gap } from "../entities/BhcResult";
 
 export interface CreateBhcResultData {
   userId: string;
@@ -8,6 +8,7 @@ export interface CreateBhcResultData {
   percentage: number;
   status: string;
   sectionScores: SectionScore[];
+  gaps: Gap[];
   completedAt: Date;
 }
 

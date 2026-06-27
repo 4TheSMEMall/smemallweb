@@ -49,6 +49,7 @@ model BhcResult {
   percentage    Int      // 0–100
   status        String   // "Critical" | "Fair" | "Good" | "Excellent"
   sectionScores Json     @map("section_scores") // JSONB — array of { name, score, max_score, percentage }
+  gaps          Json?    @map("gaps") // JSONB — array of { gap_title, section, description, priority, needs_provider, service_tag }, nullable for rows saved before this field existed
   completedAt   DateTime @map("completed_at")
   createdAt     DateTime @default(now()) @map("created_at")
 

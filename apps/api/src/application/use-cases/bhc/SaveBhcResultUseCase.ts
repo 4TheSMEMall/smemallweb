@@ -1,6 +1,6 @@
 import type { IBhcResultRepository } from "../../../domain/repositories/IBhcResultRepository";
 import type { IUserRepository } from "../../../domain/repositories/IUserRepository";
-import type { BhcResultEntity, SectionScore } from "../../../domain/entities/BhcResult";
+import type { BhcResultEntity, SectionScore, Gap } from "../../../domain/entities/BhcResult";
 import { NotFoundError } from "../../../domain/errors/DomainError";
 
 /**
@@ -17,6 +17,7 @@ export interface SaveBhcResultInput {
   percentage: number;
   status: string;
   sectionScores: SectionScore[];
+  gaps: Gap[];
   completedAt: string;
 }
 
@@ -48,6 +49,7 @@ export class SaveBhcResultUseCase {
       percentage:   input.percentage,
       status:       input.status,
       sectionScores: input.sectionScores,
+      gaps:         input.gaps ?? [],
       completedAt:  new Date(input.completedAt),
     });
   }

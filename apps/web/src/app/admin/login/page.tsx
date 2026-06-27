@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -50,13 +51,8 @@ function AdminLoginForm() {
       <div className="w-full max-w-sm">
 
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2.5 mb-10">
-          <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
-            <span className="text-white font-extrabold text-xs">SM</span>
-          </div>
-          <span className="text-white font-extrabold text-xl">
-            SME<span className="text-red-400"> Mall</span>
-          </span>
+        <div className="flex justify-center mb-10">
+          <Image src="/logo.png" alt="SME Mall" width={130} height={36} className="h-9 w-auto" priority />
         </div>
 
         <div className="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-8">

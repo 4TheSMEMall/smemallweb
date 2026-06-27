@@ -8,6 +8,17 @@ export interface SectionScore {
   percentage: number;
 }
 
+export type GapPriority = "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+
+export interface Gap {
+  gap_title: string;
+  section: string;
+  description: string;
+  priority: GapPriority;
+  needs_provider: boolean;
+  service_tag: string | null;
+}
+
 export interface BhcResult {
   id: string;
   assessmentId: string;
@@ -16,6 +27,7 @@ export interface BhcResult {
   percentage: number;
   status: string;
   sectionScores: SectionScore[];
+  gaps: Gap[];
   completedAt: string;
   createdAt: string;
 }
@@ -66,6 +78,15 @@ export function statusBarColor(status: string): string {
     case "good":      return "bg-blue-500";
     case "excellent": return "bg-emerald-500";
     default:          return "bg-gray-400";
+  }
+}
+
+export function gapPriorityColor(priority: GapPriority): string {
+  switch (priority) {
+    case "CRITICAL": return "text-red-600 bg-red-50 border-red-200";
+    case "HIGH":      return "text-amber-600 bg-amber-50 border-amber-200";
+    case "MEDIUM":    return "text-blue-600 bg-blue-50 border-blue-200";
+    case "LOW":       return "text-gray-500 bg-gray-50 border-gray-200";
   }
 }
 

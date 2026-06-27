@@ -1,6 +1,6 @@
 import { prisma } from "../database/prisma.client";
 import type { IBhcResultRepository, CreateBhcResultData } from "../../domain/repositories/IBhcResultRepository";
-import { BhcResultEntity, type SectionScore } from "../../domain/entities/BhcResult";
+import { BhcResultEntity, type SectionScore, type Gap } from "../../domain/entities/BhcResult";
 
 type DbClient = typeof prisma;
 
@@ -38,6 +38,7 @@ export class PrismaBhcResultRepository implements IBhcResultRepository {
         percentage:    data.percentage,
         status:        data.status,
         sectionScores: data.sectionScores as object[],
+        gaps:          data.gaps as unknown as object[],
         completedAt:   data.completedAt,
       },
     });
@@ -53,6 +54,7 @@ export class PrismaBhcResultRepository implements IBhcResultRepository {
     percentage: number;
     status: string;
     sectionScores: unknown;
+    gaps: unknown;
     completedAt: Date;
     createdAt: Date;
   }): BhcResultEntity {
@@ -65,6 +67,7 @@ export class PrismaBhcResultRepository implements IBhcResultRepository {
       row.percentage,
       row.status,
       row.sectionScores as SectionScore[],
+      (row.gaps as Gap[] | null) ?? [],
       row.completedAt,
       row.createdAt
     );
