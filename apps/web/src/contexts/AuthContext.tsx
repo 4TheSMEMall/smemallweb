@@ -16,7 +16,7 @@ interface AuthContextValue {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (data: LoginRequest) => Promise<void>;
+  login: (data: LoginRequest) => Promise<User>;
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => void;
 }
@@ -40,9 +40,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const handleAuthResponse = (data: AuthResponse) => {
+  const handleAuthResponse = (data: AuthResponse): User => {
     Cookies.set(TOKEN_COOKIE, data.token, COOKIE_OPTIONS);
     setUser(data.user);
+    return data.user;
   };
 
   // On mount: if a token cookie exists, hydrate the user from the API.
@@ -67,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (data: LoginRequest) => {
     const res = await authApi.login(data);
-    handleAuthResponse(res.data.data!);
+    return handleAuthResponse(res.data.data!);
   }, []);
 
   const register = useCallback(async (data: RegisterRequest) => {

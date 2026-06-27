@@ -19,6 +19,24 @@ export interface Gap {
   service_tag: string | null;
 }
 
+export type GapStatus = "OPEN" | "REQUESTED" | "IN_PROGRESS" | "CLOSED";
+
+// A trackable gap row — has a real id and status, unlike the raw Gap[] snapshot on BhcResult.
+export interface TrackedGap {
+  id: string;
+  userId: string;
+  bhcResultId: string;
+  section: string;
+  gapTitle: string;
+  description: string;
+  priority: GapPriority;
+  needsProvider: boolean;
+  serviceTag: string | null;
+  status: GapStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface BhcResult {
   id: string;
   assessmentId: string;
@@ -43,6 +61,9 @@ const BHC_BASE_URL = process.env.NEXT_PUBLIC_BHC_URL ?? "https://bhctestt.com";
 export const bhcApi = {
   getHistory: () =>
     api.get<ApiResponse<BhcHistory>>("/bhc/history"),
+
+  getGaps: () =>
+    api.get<ApiResponse<TrackedGap[]>>("/bhc/gaps"),
 
   downloadReport: (assessmentId: string) =>
     api.get(`/bhc/results/${assessmentId}/report`, { responseType: "blob" }),

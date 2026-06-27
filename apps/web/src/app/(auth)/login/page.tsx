@@ -11,6 +11,7 @@ const ROLE_HOME: Record<string, string> = {
   ADMIN: "/admin",
   PARTNER: "/partner",
   CONSULTANT: "/consultant",
+  PROVIDER: "/provider",
 };
 
 export default function LoginPage() {
@@ -36,9 +37,9 @@ function LoginForm() {
     setError("");
     setIsLoading(true);
     try {
-      await login(form);
+      const user = await login(form);
       router.refresh();
-      router.push(returnTo?.startsWith("/") ? returnTo : "/dashboard");
+      router.push(returnTo?.startsWith("/") ? returnTo : (ROLE_HOME[user.role] ?? "/dashboard"));
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??

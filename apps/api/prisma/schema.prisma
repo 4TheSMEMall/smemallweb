@@ -12,6 +12,7 @@ enum UserRole {
   ADMIN
   PARTNER
   CONSULTANT
+  PROVIDER
 }
 
 enum UserStatus {
@@ -32,7 +33,10 @@ model User {
   createdAt    DateTime    @default(now()) @map("created_at")
   updatedAt    DateTime    @updatedAt @map("updated_at")
 
-  bhcResults   BhcResult[]
+  bhcResults      BhcResult[]
+  bhcGaps         BhcGap[]
+  provider        Provider?
+  serviceRequests ServiceRequest[]
 
   @@map("users")
 }
@@ -54,9 +58,104 @@ model BhcResult {
   createdAt     DateTime @default(now()) @map("created_at")
 
   user          User     @relation(fields: [userId], references: [id])
+  bhcGaps       BhcGap[]
 
   @@index([userId])
   @@map("bhc_results")
+}
+
+enum GapStatus {
+  OPEN
+  REQUESTED
+  IN_PROGRESS
+  CLOSED
+}
+
+// Individual, trackable gaps promoted from BhcResult.gaps (the raw snapshot).
+// Each row has a real id so it can be requested as a service and tracked
+// through a job lifecycle — the raw JSON snapshot on BhcResult cannot.
+model BhcGap {
+  id            String    @id @default(cuid())
+  userId        String    @map("user_id")
+  bhcResultId   String    @map("bhc_result_id") // the assessment that produced this gap
+  section       String
+  gapTitle      String    @map("gap_title")
+  description   String
+  priority      String    // "CRITICAL" | "HIGH" | "MEDIUM" | "LOW"
+  needsProvider Boolean   @map("needs_provider")
+  serviceTag    String?   @map("service_tag")
+  status        GapStatus @default(OPEN)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  user          User      @relation(fields: [userId], references: [id])
+  bhcResult     BhcResult @relation(fields: [bhcResultId], references: [id])
+  serviceRequests ServiceRequest[]
+
+  @@index([userId])
+  @@index([bhcResultId])
+  @@map("bhc_gaps")
+}
+
+enum ServiceRequestStatus {
+  PENDING_REVIEW
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// Admin-managed directory of vetted service providers (CAC agents, bookkeepers,
+// web designers, etc). No public self-serve onboarding yet — admin creates the
+// account and profile together when bringing a provider onto the platform.
+model Provider {
+  id           String   @id @default(cuid())
+  userId       String   @unique @map("user_id")
+  businessName String   @map("business_name")
+  serviceTags  String[] @map("service_tags")
+  contactEmail String   @map("contact_email")
+  contactPhone String   @map("contact_phone")
+  active       Boolean  @default(true)
+  avgRating    Float    @default(0) @map("avg_rating")
+  reviewCount  Int      @default(0) @map("review_count")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user            User             @relation(fields: [userId], references: [id])
+  serviceRequests ServiceRequest[]
+
+  @@map("providers")
+}
+
+// A request to fix a specific BhcGap. Matching is admin-mediated for now —
+// the SME requests, admin assigns a provider, provider tracks progress.
+// Rating fields live here rather than a separate table to keep v1 simple.
+model ServiceRequest {
+  id            String               @id @default(cuid())
+  gapId         String               @map("gap_id")
+  userId        String               @map("user_id") // the SME who requested
+  providerId    String?              @map("provider_id")
+  status        ServiceRequestStatus @default(PENDING_REVIEW)
+  priceAgreed   String?              @map("price_agreed") // informational only — payment happens outside the app
+  adminNotes    String?              @map("admin_notes")
+  providerNotes String?              @map("provider_notes")
+  starRating    Int?                 @map("star_rating")
+  reviewText    String?              @map("review_text")
+  requestedAt   DateTime             @default(now()) @map("requested_at")
+  assignedAt    DateTime?            @map("assigned_at")
+  completedAt   DateTime?            @map("completed_at")
+  ratedAt       DateTime?            @map("rated_at")
+  createdAt     DateTime             @default(now()) @map("created_at")
+  updatedAt     DateTime             @updatedAt @map("updated_at")
+
+  gap      BhcGap    @relation(fields: [gapId], references: [id])
+  user     User      @relation(fields: [userId], references: [id])
+  provider Provider? @relation(fields: [providerId], references: [id])
+
+  @@index([userId])
+  @@index([providerId])
+  @@index([gapId])
+  @@map("service_requests")
 }
 
 model WibgApplication {

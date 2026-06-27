@@ -3,6 +3,11 @@ import type { GetAdminStatsUseCase } from "../../application/use-cases/admin/Get
 import type { PrismaWibgRepository, WibgApplicationStatus } from "../../infrastructure/repositories/PrismaWibgRepository";
 import type { UpdateApplicationStatusUseCase } from "../../application/use-cases/wibg/UpdateApplicationStatusUseCase";
 import type { IUserRepository } from "../../domain/repositories/IUserRepository";
+import type { IProviderRepository } from "../../domain/repositories/IProviderRepository";
+import type { IServiceRequestRepository } from "../../domain/repositories/IServiceRequestRepository";
+import type { CreateProviderUseCase } from "../../application/use-cases/services/CreateProviderUseCase";
+import type { AssignProviderUseCase } from "../../application/use-cases/services/AssignProviderUseCase";
+import type { CancelServiceRequestUseCase } from "../../application/use-cases/services/CancelServiceRequestUseCase";
 import { sendVideoReminderEmail } from "../../infrastructure/services/BrevoEmailService";
 
 const VALID_STATUSES: WibgApplicationStatus[] = [
@@ -16,6 +21,11 @@ export class AdminController {
     private readonly wibgRepo: PrismaWibgRepository,
     private readonly updateStatusUseCase: UpdateApplicationStatusUseCase,
     private readonly userRepo: IUserRepository,
+    private readonly providerRepo: IProviderRepository,
+    private readonly serviceRequestRepo: IServiceRequestRepository,
+    private readonly createProviderUseCase: CreateProviderUseCase,
+    private readonly assignProviderUseCase: AssignProviderUseCase,
+    private readonly cancelServiceRequestUseCase: CancelServiceRequestUseCase,
   ) {}
 
   getStats = async (_req: Request, res: Response, next: NextFunction) => {
@@ -98,6 +108,56 @@ export class AdminController {
       }
       const user = await this.userRepo.update(req.params.id as string, { status });
       res.json({ success: true, data: user.toPublicProfile() });
+    } catch (err) { next(err); }
+  };
+
+  // ── Service marketplace (admin-mediated) ──────────────────────
+
+  getProviders = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const providers = await this.providerRepo.findAll();
+      res.json({ success: true, data: providers });
+    } catch (err) { next(err); }
+  };
+
+  createProvider = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { businessName, contactEmail, contactPhone, serviceTags, firstName, lastName } = req.body as {
+        businessName: string; contactEmail: string; contactPhone: string; serviceTags: string[]; firstName: string; lastName: string;
+      };
+      if (!businessName || !contactEmail || !contactPhone || !firstName || !lastName) {
+        res.status(400).json({ success: false, message: "Missing required fields" }); return;
+      }
+      const result = await this.createProviderUseCase.execute({
+        businessName, contactEmail, contactPhone, serviceTags: serviceTags ?? [], firstName, lastName,
+      });
+      res.status(201).json({ success: true, data: result });
+    } catch (err) { next(err); }
+  };
+
+  getPendingServiceRequests = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const requests = await this.serviceRequestRepo.findPendingWithDetails();
+      res.json({ success: true, data: requests });
+    } catch (err) { next(err); }
+  };
+
+  assignServiceRequest = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { providerId, priceAgreed, adminNotes } = req.body as { providerId: string; priceAgreed?: string; adminNotes?: string };
+      if (!providerId) {
+        res.status(400).json({ success: false, message: "providerId is required" }); return;
+      }
+      await this.assignProviderUseCase.execute(req.params.id as string, providerId, priceAgreed ?? null, adminNotes ?? null);
+      res.json({ success: true });
+    } catch (err) { next(err); }
+  };
+
+  cancelServiceRequest = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { adminNotes } = req.body as { adminNotes?: string };
+      await this.cancelServiceRequestUseCase.execute(req.params.id as string, adminNotes ?? null);
+      res.json({ success: true });
     } catch (err) { next(err); }
   };
 }

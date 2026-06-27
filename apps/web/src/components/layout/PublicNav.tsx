@@ -19,6 +19,7 @@ const ROLE_HOME: Record<string, string> = {
   ADMIN:          "/admin",
   PARTNER:        "/partner",
   CONSULTANT:     "/consultant",
+  PROVIDER:       "/provider",
 };
 
 export function PublicNav() {

@@ -5,6 +5,9 @@ import rateLimit from "express-rate-limit";
 import { prisma } from "./infrastructure/database/prisma.client";
 import { PrismaUserRepository } from "./infrastructure/repositories/PrismaUserRepository";
 import { PrismaBhcResultRepository } from "./infrastructure/repositories/PrismaBhcResultRepository";
+import { PrismaBhcGapRepository } from "./infrastructure/repositories/PrismaBhcGapRepository";
+import { PrismaProviderRepository } from "./infrastructure/repositories/PrismaProviderRepository";
+import { PrismaServiceRequestRepository } from "./infrastructure/repositories/PrismaServiceRequestRepository";
 import { BcryptPasswordService } from "./infrastructure/services/BcryptPasswordService";
 import { JwtTokenService } from "./infrastructure/services/JwtTokenService";
 import { PrismaWibgRepository } from "./infrastructure/repositories/PrismaWibgRepository";
@@ -16,13 +19,23 @@ import { LoginUseCase } from "./application/use-cases/auth/LoginUseCase";
 import { GetMeUseCase } from "./application/use-cases/auth/GetMeUseCase";
 import { SaveBhcResultUseCase } from "./application/use-cases/bhc/SaveBhcResultUseCase";
 import { GetBhcHistoryUseCase } from "./application/use-cases/bhc/GetBhcHistoryUseCase";
+import { GetMyGapsUseCase } from "./application/use-cases/bhc/GetMyGapsUseCase";
+import { RequestServiceUseCase } from "./application/use-cases/services/RequestServiceUseCase";
+import { AssignProviderUseCase } from "./application/use-cases/services/AssignProviderUseCase";
+import { UpdateJobStatusUseCase } from "./application/use-cases/services/UpdateJobStatusUseCase";
+import { RateServiceUseCase } from "./application/use-cases/services/RateServiceUseCase";
+import { CreateProviderUseCase } from "./application/use-cases/services/CreateProviderUseCase";
+import { CancelServiceRequestUseCase } from "./application/use-cases/services/CancelServiceRequestUseCase";
 import { GenerateBhcLaunchTokenUseCase } from "./application/use-cases/bhc/GenerateBhcLaunchTokenUseCase";
 import { AuthController } from "./presentation/controllers/AuthController";
 import { WebhookController } from "./presentation/controllers/WebhookController";
 import { BhcController } from "./presentation/controllers/BhcController";
+import { ServiceController } from "./presentation/controllers/ServiceController";
+import { ProviderController } from "./presentation/controllers/ProviderController";
 import { createAuthRouter } from "./presentation/routes/auth.routes";
 import { createWebhookRouter } from "./presentation/routes/webhook.routes";
 import { createBhcRouter } from "./presentation/routes/bhc.routes";
+import { createProviderRouter } from "./presentation/routes/provider.routes";
 import { createWibgRouter } from "./presentation/routes/wibg.routes";
 import { createAdminRouter } from "./presentation/routes/admin.routes";
 import { createAuthMiddleware } from "./presentation/middleware/authenticate";
@@ -35,6 +48,9 @@ export function createApp(): Express {
   // ── Infrastructure ───────────────────────────────────────────
   const userRepo       = new PrismaUserRepository(prisma);
   const bhcResultRepo  = new PrismaBhcResultRepository(prisma);
+  const bhcGapRepo     = new PrismaBhcGapRepository(prisma);
+  const providerRepo   = new PrismaProviderRepository(prisma);
+  const serviceRequestRepo = new PrismaServiceRequestRepository(prisma);
   const wibgRepo       = new PrismaWibgRepository(prisma);
   const passwordService = new BcryptPasswordService();
   const tokenService   = new JwtTokenService(
@@ -46,8 +62,15 @@ export function createApp(): Express {
   const registerUseCase    = new RegisterUseCase(userRepo, passwordService, tokenService);
   const loginUseCase       = new LoginUseCase(userRepo, passwordService, tokenService);
   const getMeUseCase       = new GetMeUseCase(userRepo);
-  const saveBhcResultUseCase       = new SaveBhcResultUseCase(bhcResultRepo, userRepo);
+  const saveBhcResultUseCase       = new SaveBhcResultUseCase(bhcResultRepo, userRepo, bhcGapRepo);
   const getBhcHistoryUseCase       = new GetBhcHistoryUseCase(bhcResultRepo);
+  const getMyGapsUseCase           = new GetMyGapsUseCase(bhcGapRepo);
+  const requestServiceUseCase      = new RequestServiceUseCase(bhcGapRepo, serviceRequestRepo);
+  const assignProviderUseCase      = new AssignProviderUseCase(serviceRequestRepo, providerRepo);
+  const updateJobStatusUseCase     = new UpdateJobStatusUseCase(serviceRequestRepo, bhcGapRepo);
+  const rateServiceUseCase         = new RateServiceUseCase(serviceRequestRepo, bhcGapRepo, providerRepo);
+  const createProviderUseCase      = new CreateProviderUseCase(userRepo, providerRepo, passwordService);
+  const cancelServiceRequestUseCase = new CancelServiceRequestUseCase(serviceRequestRepo, bhcGapRepo);
   const generateBhcLaunchTokenUseCase = new GenerateBhcLaunchTokenUseCase(
     process.env.BHC_WEBHOOK_SECRET ?? "change-me"
   );
@@ -67,10 +90,25 @@ export function createApp(): Express {
   const bhcController = new BhcController(
     getBhcHistoryUseCase,
     generateBhcLaunchTokenUseCase,
+    getMyGapsUseCase,
     process.env.BHC_API_URL ?? "https://bhcdemo-production.up.railway.app/api/v1"
   );
 
-  const adminController = new AdminController(adminStatsUseCase, wibgRepo, updateStatusUseCase, userRepo);
+  const serviceController = new ServiceController(requestServiceUseCase, rateServiceUseCase, serviceRequestRepo);
+
+  const providerController = new ProviderController(updateJobStatusUseCase, providerRepo, serviceRequestRepo);
+
+  const adminController = new AdminController(
+    adminStatsUseCase,
+    wibgRepo,
+    updateStatusUseCase,
+    userRepo,
+    providerRepo,
+    serviceRequestRepo,
+    createProviderUseCase,
+    assignProviderUseCase,
+    cancelServiceRequestUseCase,
+  );
 
   // ── Middleware ───────────────────────────────────────────────
   const authenticate = createAuthMiddleware(tokenService);
@@ -118,7 +156,8 @@ export function createApp(): Express {
   });
 
   app.use("/api/auth",     authLimiter, createAuthRouter(authController, authenticate));
-  app.use("/api/bhc",      createBhcRouter(bhcController, authenticate));
+  app.use("/api/bhc",      createBhcRouter(bhcController, serviceController, authenticate));
+  app.use("/api/provider", createProviderRouter(providerController, tokenService));
   app.use("/api/wibg",     createWibgRouter(wibgController, authenticate));
   app.use("/api/admin",    createAdminRouter(adminController, tokenService));
 

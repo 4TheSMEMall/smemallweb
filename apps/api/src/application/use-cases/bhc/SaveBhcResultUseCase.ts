@@ -1,5 +1,6 @@
 import type { IBhcResultRepository } from "../../../domain/repositories/IBhcResultRepository";
 import type { IUserRepository } from "../../../domain/repositories/IUserRepository";
+import type { IBhcGapRepository } from "../../../domain/repositories/IBhcGapRepository";
 import type { BhcResultEntity, SectionScore, Gap } from "../../../domain/entities/BhcResult";
 import { NotFoundError } from "../../../domain/errors/DomainError";
 
@@ -24,7 +25,8 @@ export interface SaveBhcResultInput {
 export class SaveBhcResultUseCase {
   constructor(
     private readonly bhcResultRepo: IBhcResultRepository,
-    private readonly userRepo: IUserRepository
+    private readonly userRepo: IUserRepository,
+    private readonly bhcGapRepo: IBhcGapRepository
   ) {}
 
   async execute(input: SaveBhcResultInput): Promise<BhcResultEntity> {
@@ -41,7 +43,7 @@ export class SaveBhcResultUseCase {
     const existing = await this.bhcResultRepo.findByAssessmentId(input.assessmentId);
     if (existing) return existing;
 
-    return this.bhcResultRepo.create({
+    const result = await this.bhcResultRepo.create({
       userId:       user.id,
       assessmentId: input.assessmentId,
       score:        input.score,
@@ -52,5 +54,42 @@ export class SaveBhcResultUseCase {
       gaps:         input.gaps ?? [],
       completedAt:  new Date(input.completedAt),
     });
+
+    await this.syncGaps(user.id, result.id, input.gaps ?? []);
+
+    return result;
+  }
+
+  /**
+   * Reconciles trackable BhcGap rows against the latest assessment's gap snapshot.
+   * - A gap (matched by section + title) that's still OPEN and reappears is left alone (no duplicate row).
+   * - A gap not present in the new snapshot is auto-closed (assumed self-fixed).
+   * - Gaps already REQUESTED/IN_PROGRESS are never touched here — they're mid service-request
+   *   and only move forward through the marketplace flow, not a retest.
+   */
+  private async syncGaps(userId: string, bhcResultId: string, gaps: Gap[]): Promise<void> {
+    const openGaps = await this.bhcGapRepo.findOpenByUserId(userId);
+    const openKey = (g: { section: string; gapTitle: string }) => `${g.section}::${g.gapTitle}`;
+    const openByKey = new Map(openGaps.map((g) => [openKey(g), g]));
+
+    const incomingKeys = new Set(gaps.map((g) => `${g.section}::${g.gap_title}`));
+
+    const toCreate = gaps.filter((g) => !openByKey.has(`${g.section}::${g.gap_title}`));
+    const toClose  = openGaps.filter((g) => !incomingKeys.has(openKey(g))).map((g) => g.id);
+
+    await this.bhcGapRepo.createMany(
+      toCreate.map((g) => ({
+        userId,
+        bhcResultId,
+        section:       g.section,
+        gapTitle:      g.gap_title,
+        description:   g.description,
+        priority:      g.priority,
+        needsProvider: g.needs_provider,
+        serviceTag:    g.service_tag,
+      }))
+    );
+
+    await this.bhcGapRepo.closeMany(toClose);
   }
 }

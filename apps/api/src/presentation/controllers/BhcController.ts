@@ -1,12 +1,14 @@
 import type { Request, Response, NextFunction } from "express";
 import type { GetBhcHistoryUseCase } from "../../application/use-cases/bhc/GetBhcHistoryUseCase";
 import type { GenerateBhcLaunchTokenUseCase } from "../../application/use-cases/bhc/GenerateBhcLaunchTokenUseCase";
+import type { GetMyGapsUseCase } from "../../application/use-cases/bhc/GetMyGapsUseCase";
 import type { ApiResponse } from "@sme-mall/shared";
 
 export class BhcController {
   constructor(
     private readonly getHistoryUseCase: GetBhcHistoryUseCase,
     private readonly generateLaunchTokenUseCase: GenerateBhcLaunchTokenUseCase,
+    private readonly getMyGapsUseCase: GetMyGapsUseCase,
     private readonly bhcApiUrl: string
   ) {}
 
@@ -34,6 +36,18 @@ export class BhcController {
     try {
       const result = await this.getHistoryUseCase.execute(req.user!.sub);
       res.json({ success: true, data: result } satisfies ApiResponse<typeof result>);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  /**
+   * GET /api/bhc/gaps
+   */
+  getGaps = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const gaps = await this.getMyGapsUseCase.execute(req.user!.sub);
+      res.json({ success: true, data: gaps } satisfies ApiResponse<typeof gaps>);
     } catch (err) {
       next(err);
     }

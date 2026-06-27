@@ -22,5 +22,11 @@ export function createAdminRouter(
   router.get("/users",                          controller.getUsers);
   router.patch("/users/:id/status",             controller.updateUserStatus);
 
+  router.get("/providers",                      controller.getProviders);
+  router.post("/providers",                     controller.createProvider);
+  router.get("/service-requests",               controller.getPendingServiceRequests);
+  router.post("/service-requests/:id/assign",   controller.assignServiceRequest);
+  router.post("/service-requests/:id/cancel",   controller.cancelServiceRequest);
+
   return router;
 }
