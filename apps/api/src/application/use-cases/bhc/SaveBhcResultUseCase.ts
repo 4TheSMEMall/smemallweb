@@ -39,23 +39,34 @@ export class SaveBhcResultUseCase {
       );
     }
 
-    // Idempotency — if this assessmentId already exists, return it
-    const existing = await this.bhcResultRepo.findByAssessmentId(input.assessmentId);
-    if (existing) return existing;
+    // Idempotency — if this assessmentId already exists, reuse it rather than
+    // re-creating. Gap sync still runs below even on this path: if a previous
+    // call created the BhcResult but failed partway through syncing gaps
+    // (e.g. a webhook retry), this lets the retry actually finish the job
+    // instead of silently no-op'ing forever.
+    let result = await this.bhcResultRepo.findByAssessmentId(input.assessmentId);
+    if (!result) {
+      result = await this.bhcResultRepo.create({
+        userId:       user.id,
+        assessmentId: input.assessmentId,
+        score:        input.score,
+        maxScore:     input.maxScore,
+        percentage:   input.percentage,
+        status:       input.status,
+        sectionScores: input.sectionScores,
+        gaps:         input.gaps ?? [],
+        completedAt:  new Date(input.completedAt),
+      });
+    }
 
-    const result = await this.bhcResultRepo.create({
-      userId:       user.id,
-      assessmentId: input.assessmentId,
-      score:        input.score,
-      maxScore:     input.maxScore,
-      percentage:   input.percentage,
-      status:       input.status,
-      sectionScores: input.sectionScores,
-      gaps:         input.gaps ?? [],
-      completedAt:  new Date(input.completedAt),
-    });
-
-    await this.syncGaps(user.id, result.id, input.gaps ?? []);
+    try {
+      await this.syncGaps(user.id, result.id, input.gaps ?? []);
+    } catch (err) {
+      // The score itself is already saved — that's the critical contract with
+      // bhctestt.com. Don't fail the whole webhook over a gap-sync problem,
+      // but log loudly so it's visible and the next retry can pick it up.
+      console.error(`[SaveBhcResultUseCase] Gap sync failed for assessment ${input.assessmentId}:`, err);
+    }
 
     return result;
   }
