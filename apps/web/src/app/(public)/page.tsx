@@ -6,6 +6,7 @@ import { BhcDeepDive }  from "./_components/BhcDeepDive";
 import { PulseCheck }   from "./_components/PulseCheck";
 import { StatsSection }    from "./_components/StatsSection";
 import { WibgEventPopup }  from "./_components/WibgEventPopup";
+import { XMarkIcon, CheckCircleIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = {
   title: "The SME Mall — Nigeria's #1 Business Super App",
@@ -47,19 +48,19 @@ const testimonials = [
 ];
 
 const BEFORE = [
-  { icon: "📱", text: "Calling the bank with no idea what they need from you" },
-  { icon: "📊", text: "Excel spreadsheet with 6 months of uncategorised expenses" },
-  { icon: "❌", text: "Loan rejection: \"Insufficient documentation / business records\"" },
-  { icon: "🤷", text: "No clear path to improving — every advisor says something different" },
-  { icon: "📉", text: "Applying to every lender and collecting rejection marks on your credit file" },
+  "Calling the bank with no idea what they need from you",
+  "Excel spreadsheet with 6 months of uncategorised expenses",
+  "Loan rejection: \"Insufficient documentation / business records\"",
+  "No clear path to improving — every advisor says something different",
+  "Applying to every lender and collecting rejection marks on your credit file",
 ];
 
 const AFTER = [
-  { icon: "📊", text: "BHC score of 78/100 — you know exactly which 2 sections to fix" },
-  { icon: "🏦", text: "3 matched lenders, ranked by your score and loan requirements" },
-  { icon: "✅", text: "Loan application submitted with a BHC report lenders trust" },
-  { icon: "📈", text: "Improvement roadmap: 90-day action plan, section by section" },
-  { icon: "🎓", text: "Consultant booked — score improved 18 pts in 6 weeks" },
+  "BHC score of 78/100 — you know exactly which 2 sections to fix",
+  "3 matched lenders, ranked by your score and loan requirements",
+  "Loan application submitted with a BHC report lenders trust",
+  "Improvement roadmap: 90-day action plan, section by section",
+  "Consultant booked — score improved 18 pts in 6 weeks",
 ];
 
 export default function HomePage() {
@@ -118,7 +119,7 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-3 gap-4">
 
             {/* BHC — large card */}
-            <div className="lg:col-span-2 bg-navy-900 rounded-3xl p-6 sm:p-8 relative overflow-hidden group hover:shadow-card-hover transition-all duration-300">
+            <div className="lg:col-span-2 bg-navy-900 rounded-3xl p-6 sm:p-8 relative overflow-hidden group hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300">
               <div className="absolute inset-0 bg-dots opacity-20" />
               <div className="absolute top-0 right-0 w-64 h-full bg-gradient-radial from-blue-500/20 via-transparent to-transparent pointer-events-none" />
               <div className="relative">
@@ -160,7 +161,7 @@ export default function HomePage() {
             {/* Right column — SME Paddy + WIBG */}
             <div className="grid sm:grid-cols-2 lg:grid-cols-1 gap-4">
               {/* SME Paddy */}
-              <div className="bg-gradient-to-br from-emerald-900 to-teal-900 rounded-3xl p-6 relative overflow-hidden group hover:shadow-card-hover transition-all duration-300">
+              <div className="bg-gradient-to-br from-emerald-900 to-teal-900 rounded-3xl p-6 relative overflow-hidden group hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300">
                 <div className="absolute inset-0 bg-dots opacity-15" />
                 <div className="relative">
                   <div className="flex items-center gap-2 mb-4">
@@ -182,7 +183,7 @@ export default function HomePage() {
               </div>
 
               {/* WIBG */}
-              <div className="bg-gradient-to-br from-purple-900 to-pink-900 rounded-3xl p-6 relative overflow-hidden group hover:shadow-card-hover transition-all duration-300">
+              <div className="bg-gradient-to-br from-purple-900 to-pink-900 rounded-3xl p-6 relative overflow-hidden group hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300">
                 <div className="absolute inset-0 bg-dots opacity-15" />
                 <div className="relative">
                   <div className="flex items-center gap-2 mb-4">
@@ -231,14 +232,16 @@ export default function HomePage() {
             {/* Before */}
             <div className="bg-red-50 border-2 border-red-200 rounded-3xl p-5 sm:p-8">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white font-extrabold text-sm flex-shrink-0">✕</div>
+                <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <XMarkIcon className="w-4 h-4 text-white" />
+                </div>
                 <h3 className="font-extrabold text-red-800 text-lg">Without The SME Mall</h3>
               </div>
               <ul className="space-y-4">
-                {BEFORE.map((item) => (
-                  <li key={item.text} className="flex items-start gap-3">
-                    <span className="text-xl flex-shrink-0 mt-0.5">{item.icon}</span>
-                    <p className="text-red-700 text-sm leading-relaxed">{item.text}</p>
+                {BEFORE.map((text) => (
+                  <li key={text} className="flex items-start gap-3">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0 mt-2" />
+                    <p className="text-red-700 text-sm leading-relaxed">{text}</p>
                   </li>
                 ))}
               </ul>
@@ -247,14 +250,16 @@ export default function HomePage() {
             {/* After */}
             <div className="bg-emerald-50 border-2 border-emerald-200 rounded-3xl p-5 sm:p-8">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-extrabold text-sm flex-shrink-0">✓</div>
+                <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <CheckCircleIcon className="w-4 h-4 text-white" />
+                </div>
                 <h3 className="font-extrabold text-emerald-800 text-lg">With The SME Mall</h3>
               </div>
               <ul className="space-y-4">
-                {AFTER.map((item) => (
-                  <li key={item.text} className="flex items-start gap-3">
-                    <span className="text-xl flex-shrink-0 mt-0.5">{item.icon}</span>
-                    <p className="text-emerald-700 text-sm leading-relaxed">{item.text}</p>
+                {AFTER.map((text) => (
+                  <li key={text} className="flex items-start gap-3">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0 mt-2" />
+                    <p className="text-emerald-700 text-sm leading-relaxed">{text}</p>
                   </li>
                 ))}
               </ul>
@@ -295,7 +300,7 @@ export default function HomePage() {
             {testimonials.map((t) => (
               <div
                 key={t.name}
-                className="bg-gray-50 rounded-3xl p-6 sm:p-8 border border-gray-100 hover:border-red-100 hover:shadow-card transition-all duration-300 flex flex-col"
+                className="bg-gray-50 rounded-3xl p-6 sm:p-8 border border-gray-100 hover:border-red-100 hover:shadow-card hover:-translate-y-1 transition-all duration-300 flex flex-col"
               >
                 {/* Score badge */}
                 <div className="flex items-center gap-2 mb-5">

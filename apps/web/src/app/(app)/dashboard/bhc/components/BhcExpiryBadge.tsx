@@ -1,5 +1,7 @@
 "use client";
 
+import { CalendarIcon } from "@/components/ui/icons";
+
 interface Props {
   completedAt: Date | string;
   onRetake: () => void;
@@ -51,7 +53,7 @@ export function BhcExpiryBadge({ completedAt, onRetake }: Props) {
     <div className={`border rounded-2xl p-4 ${color.split(" ").slice(0, 2).join(" ")}`}>
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <span className="text-lg">📅</span>
+          <CalendarIcon className="w-[18px] h-[18px]" />
           <p className={`font-bold text-sm ${color.split(" ")[2]}`}>
             {daysLeft > 30
               ? `Score valid for ${daysLeft} more days`

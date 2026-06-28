@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BuildingIcon, LockClosedIcon } from "@/components/ui/icons";
 
 interface Props {
   percentage: number;
@@ -47,7 +48,7 @@ export function BhcLenderPanel({ percentage }: Props) {
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <span className="text-xl">🏦</span>
+              <BuildingIcon className="w-5 h-5 text-navy-900" />
               <h2 className="font-extrabold text-navy-900">Lender Matching</h2>
               <span className="text-xs bg-navy-100 text-navy-700 font-bold px-2 py-0.5 rounded-full">
                 Coming Soon
@@ -107,7 +108,7 @@ export function BhcLenderPanel({ percentage }: Props) {
             <div key={tier.label} className="relative border border-gray-200 bg-gray-50 rounded-xl p-4 opacity-60">
               <div className="absolute top-3 right-3">
                 <span className="flex items-center gap-1 text-xs font-medium text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">
-                  🔒 Need +{needed} pts
+                  <LockClosedIcon className="w-3 h-3" /> Need +{needed} pts
                 </span>
               </div>
               <p className="font-extrabold text-gray-600 text-sm pr-28">{tier.label}</p>

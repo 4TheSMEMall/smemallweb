@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AcademicCapIcon } from "@/components/ui/icons";
 
 interface Props {
   percentage: number;
@@ -17,10 +18,10 @@ export function BhcConsultantPrompt({ percentage, status }: Props) {
         : "bg-amber-50 border-amber-200"
     }`}>
       <div className="flex items-start gap-4">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
           isLow ? "bg-red-100" : "bg-amber-100"
         }`}>
-          🎓
+          <AcademicCapIcon className={`w-5 h-5 ${isLow ? "text-red-600" : "text-amber-600"}`} />
         </div>
         <div className="flex-1 min-w-0">
           <p className={`font-extrabold text-sm mb-1 ${isLow ? "text-red-800" : "text-amber-800"}`}>

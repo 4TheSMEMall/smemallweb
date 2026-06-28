@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { BuildingIcon, BanknotesIcon, AcademicCapIcon } from "@/components/ui/icons";
 
 const STATS = [
-  { value: 5000,  suffix: "+", label: "SMEs on the platform", icon: "🏢" },
-  { value: 2,     suffix: "B+", label: "Naira in loans matched", prefix: "₦", icon: "💰" },
-  { value: 12,    suffix: "",   label: "Partner lenders onboarded", icon: "🏦" },
-  { value: 200,   suffix: "+",  label: "Certified consultants", icon: "🎓" },
+  { value: 5000,  suffix: "+", label: "SMEs on the platform", Icon: BuildingIcon },
+  { value: 2,     suffix: "B+", label: "Naira in loans matched", prefix: "₦", Icon: BanknotesIcon },
+  { value: 12,    suffix: "",   label: "Partner lenders onboarded", Icon: BuildingIcon },
+  { value: 200,   suffix: "+",  label: "Certified consultants", Icon: AcademicCapIcon },
 ];
 
 const TICKER_ITEMS = [
@@ -48,7 +49,7 @@ function StatCard({ stat, active }: { stat: typeof STATS[0]; active: boolean }) 
   const count = useCountUp(stat.value, active);
   return (
     <div className="bg-navy-800/80 border border-white/10 rounded-2xl p-7 text-center hover:bg-navy-800 transition-colors">
-      <div className="text-3xl mb-3">{stat.icon}</div>
+      <div className="w-11 h-11 rounded-xl bg-white/[0.06] flex items-center justify-center mb-4 mx-auto"><stat.Icon className="w-5 h-5 text-red-400" /></div>
       <p className="text-4xl font-extrabold text-white mb-2 tabular-nums">
         {stat.prefix ?? ""}{count.toLocaleString()}{stat.suffix}
       </p>

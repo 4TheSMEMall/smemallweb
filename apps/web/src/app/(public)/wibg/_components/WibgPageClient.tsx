@@ -2,6 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import {
+  CalendarIcon, PaperAirplaneIcon, TrophyIcon, SparklesIcon,
+  ArrowTrendingUpIcon, BuildingIcon, HandRaisedIcon, AcademicCapIcon, FireIcon,
+} from "@/components/ui/icons";
 
 // ── Countdown to Grand Finale ──────────────────────────────────
 function Countdown() {
@@ -162,12 +166,12 @@ export function WibgPageClient() {
               {/* Quick facts row */}
               <div className="flex flex-wrap gap-x-6 gap-y-3">
                 {[
-                  { icon: "📅", text: "September 12, Lagos" },
-                  { icon: "🎤", text: "6 finalists selected" },
-                  { icon: "🏆", text: "Equity-free grants" },
+                  { Icon: CalendarIcon, text: "September 12, Lagos" },
+                  { Icon: SparklesIcon, text: "6 finalists selected" },
+                  { Icon: TrophyIcon,   text: "Equity-free grants" },
                 ].map((f) => (
                   <div key={f.text} className="flex items-center gap-2 text-gray-500 text-xs font-medium">
-                    <span>{f.icon}</span>
+                    <f.Icon className="w-3.5 h-3.5" />
                     <span>{f.text}</span>
                   </div>
                 ))}
@@ -307,16 +311,18 @@ export function WibgPageClient() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
-              { icon: "🌱", title: "You're just starting out",        desc: "You have a business idea or a very early-stage venture and you need capital and structure to launch properly." },
-              { icon: "📈", title: "You're already running",          desc: "Your business is live, you have customers or sales, and you're ready to take it to the next level with real funding." },
-              { icon: "🏦", title: "Banks keep saying no",           desc: "You've tried getting loans but couldn't meet the collateral requirements. Equity-free capital was made for this moment." },
-              { icon: "🤝", title: "You want the right investors",   desc: "Beyond the grant, you want to stand in front of VCs, angels, and press who are actually looking to back women founders." },
-              { icon: "🎓", title: "You want to build your skills",  desc: "You're hungry for training — legal, finance, marketing, tech — from experts who understand the Nigerian SME space." },
-              { icon: "🔥", title: "You're done waiting",            desc: "You're tired of being underfunded and overlooked. You have the drive. WIBG is the platform. September 12 is the date." },
+              { Icon: SparklesIcon,        title: "You're just starting out",        desc: "You have a business idea or a very early-stage venture and you need capital and structure to launch properly." },
+              { Icon: ArrowTrendingUpIcon, title: "You're already running",          desc: "Your business is live, you have customers or sales, and you're ready to take it to the next level with real funding." },
+              { Icon: BuildingIcon,        title: "Banks keep saying no",           desc: "You've tried getting loans but couldn't meet the collateral requirements. Equity-free capital was made for this moment." },
+              { Icon: HandRaisedIcon,      title: "You want the right investors",   desc: "Beyond the grant, you want to stand in front of VCs, angels, and press who are actually looking to back women founders." },
+              { Icon: AcademicCapIcon,     title: "You want to build your skills",  desc: "You're hungry for training — legal, finance, marketing, tech — from experts who understand the Nigerian SME space." },
+              { Icon: FireIcon,            title: "You're done waiting",            desc: "You're tired of being underfunded and overlooked. You have the drive. WIBG is the platform. September 12 is the date." },
             ].map((card) => (
               <div key={card.title}
                 className="group relative bg-white/[0.025] hover:bg-white/[0.045] border border-white/[0.07] hover:border-green-500/20 rounded-2xl p-7 sm:p-8 transition-all duration-200 cursor-default">
-                <span className="text-3xl mb-5 block">{card.icon}</span>
+                <div className="w-11 h-11 rounded-xl bg-green-500/10 flex items-center justify-center mb-5">
+                  <card.Icon className="w-5 h-5 text-green-400" />
+                </div>
                 <p className="text-white font-bold text-base sm:text-[17px] mb-2.5 leading-snug">{card.title}</p>
                 <p className="text-gray-600 text-sm leading-relaxed">{card.desc}</p>
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-green-500/0 via-green-500/40 to-green-500/0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -450,7 +456,7 @@ export function WibgPageClient() {
               </p>
               <p className="text-gray-500 text-sm sm:text-base mb-6">Equity-free seed capital · 1-on-1 VC coaching · Corporate exhibition space</p>
               <span className="inline-flex items-center gap-2 text-amber-400 text-sm font-semibold">
-                <span className="text-xl">🏆</span> Most impactful pitch takes all
+                <TrophyIcon className="w-4 h-4" /> Most impactful pitch takes all
               </span>
             </div>
           </div>
@@ -458,12 +464,12 @@ export function WibgPageClient() {
           {/* 2nd and 3rd */}
           <div className="grid sm:grid-cols-2 gap-6 mb-16">
             {[
-              { place: "2nd Place",  amount: "₦1,000,000", icon: "🥈", perks: "Grant capital · 6 months mentorship · Co-working space ticket" },
-              { place: "3rd Place",  amount: "₦500,000",   icon: "🥉", perks: "Grant capital · 3 months capacity building training" },
+              { place: "2nd Place",  amount: "₦1,000,000", rank: 2, perks: "Grant capital · 6 months mentorship · Co-working space ticket" },
+              { place: "3rd Place",  amount: "₦500,000",   rank: 3, perks: "Grant capital · 3 months capacity building training" },
             ].map((p) => (
               <div key={p.place} className="border border-white/[0.08] rounded-2xl p-8 bg-white/[0.02]">
                 <div className="flex items-start justify-between mb-4">
-                  <span className="text-3xl">{p.icon}</span>
+                  <span className={`w-9 h-9 rounded-full flex items-center justify-center font-black text-sm ${p.rank === 2 ? "bg-slate-300/20 text-slate-300" : "bg-orange-400/20 text-orange-400"}`}>{p.rank}</span>
                   <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/25">{p.place}</span>
                 </div>
                 <p className="text-4xl font-extrabold text-white mb-2">{p.amount}</p>

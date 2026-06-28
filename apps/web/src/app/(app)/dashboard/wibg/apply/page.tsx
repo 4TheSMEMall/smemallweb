@@ -5,6 +5,7 @@ import Link from "next/link";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { bhcApi } from "@/lib/bhcApi";
 import api from "@/lib/api";
+import { VideoCameraIcon } from "@/components/ui/icons";
 
 /* ── Nav ─────────────────────────────────────────────────────── */
 const navItems = [
@@ -657,7 +658,7 @@ export default function WibgApplyPage() {
             {/* ── Pitch Video Instruction ─────────────────── */}
             <div className="bg-navy-900 rounded-2xl p-6 sm:p-8">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center flex-shrink-0 text-white text-lg">🎥</div>
+                <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center flex-shrink-0"><VideoCameraIcon className="w-5 h-5 text-white" /></div>
                 <div>
                   <p className="text-white font-extrabold text-base mb-1">One more thing — record your pitch video</p>
                   <p className="text-gray-400 text-sm leading-relaxed mb-4">

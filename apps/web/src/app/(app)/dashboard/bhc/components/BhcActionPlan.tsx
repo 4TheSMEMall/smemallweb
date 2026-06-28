@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type { SectionScore } from "@/lib/bhcApi";
+import { CalendarIcon } from "@/components/ui/icons";
 
 interface Props {
   assessmentId: string;
@@ -133,7 +134,7 @@ export function BhcActionPlan({ assessmentId, sectionScores, percentage }: Props
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xl">🗓️</span>
+              <CalendarIcon className="w-5 h-5 text-navy-900" />
               <h2 className="font-extrabold text-navy-900">90-Day Improvement Plan</h2>
             </div>
             <p className="text-gray-500 text-sm">

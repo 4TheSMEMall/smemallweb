@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
+import { ChartBarIcon, ArrowTrendingUpIcon, SparklesIcon } from "@/components/ui/icons";
 
 const TABS = [
-  { id: "bhc",      label: "BHC",       emoji: "📊", full: "Business Health Checker" },
-  { id: "paddy",    label: "SME Paddy", emoji: "📈", full: "SME Paddy" },
-  { id: "wibg",     label: "WIBG",      emoji: "🌱", full: "Women in Business Growth" },
+  { id: "bhc",      label: "BHC",       Icon: ChartBarIcon,        full: "Business Health Checker" },
+  { id: "paddy",    label: "SME Paddy", Icon: ArrowTrendingUpIcon, full: "SME Paddy" },
+  { id: "wibg",     label: "WIBG",      Icon: SparklesIcon,        full: "Women in Business Growth" },
 ] as const;
 
 const TAB_MS = 4500;
@@ -281,7 +282,7 @@ export function HeroSection() {
                     : "text-white/40 hover:text-white/70"
                 }`}
               >
-                <span>{tab.emoji}</span>
+                <tab.Icon className="w-3.5 h-3.5" />
                 <span>{tab.label}</span>
               </button>
             ))}

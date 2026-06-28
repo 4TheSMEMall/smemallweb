@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { SparklesIcon } from "@/components/ui/icons";
 
 const STORAGE_KEY = "smemall_wibg2026_popup_seen";
 const FINALE_DATE = new Date("2026-09-12T00:00:00");
@@ -99,7 +100,7 @@ export function WibgEventPopup() {
           )}
           {daysLeft === 0 && (
             <div className="flex items-center gap-3 bg-green-500/10 border border-green-500/20 rounded-2xl px-4 py-3 mb-6">
-              <span className="text-2xl">🎉</span>
+              <SparklesIcon className="w-6 h-6 text-green-400" />
               <p className="text-sm font-bold text-green-400">It&apos;s Grand Finale Day! Watch live today in Lagos.</p>
             </div>
           )}
