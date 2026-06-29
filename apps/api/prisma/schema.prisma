@@ -37,6 +37,7 @@ model User {
   bhcGaps         BhcGap[]
   provider        Provider?
   serviceRequests ServiceRequest[]
+  wibgScores      WibgScore[]
 
   @@map("users")
 }
@@ -181,7 +182,32 @@ model WibgApplication {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
+  scores WibgScore[]
+
   @@map("wibg_applications")
+}
+
+// One row per (application, judge) — each logged-in admin scores independently
+// against the published rubric; the panel average is computed on read, not stored.
+model WibgScore {
+  id               String   @id @default(cuid())
+  applicationId    String   @map("application_id")
+  judgeId          String   @map("judge_id")
+  innovation       Int      @map("innovation")        // 0–25
+  marketViability  Int      @map("market_viability")  // 0–20
+  teamExecution    Int      @map("team_execution")    // 0–20
+  financialClarity Int      @map("financial_clarity") // 0–20
+  pitchDelivery    Int      @map("pitch_delivery")     // 0–15
+  notes            String?
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  application WibgApplication @relation(fields: [applicationId], references: [id])
+  judge       User            @relation(fields: [judgeId], references: [id])
+
+  @@unique([applicationId, judgeId])
+  @@index([applicationId])
+  @@map("wibg_scores")
 }
 
 model WibgAttendee {

@@ -15,10 +15,13 @@ export function createAdminRouter(
 
   router.get("/stats",                          controller.getStats);
   router.get("/wibg",                           controller.getApplications);
+  router.get("/wibg/scoreboard",                controller.getScoreboard);
   router.get("/wibg/:id",                       controller.getApplication);
   router.patch("/wibg/:id/status",              controller.updateApplicationStatus);
   router.post("/wibg/:id/video-reminder",       controller.sendVideoReminder);
   router.patch("/wibg/:id/video-tag",           controller.toggleVideoTag);
+  router.get("/wibg/:id/scores",                controller.getApplicationScores);
+  router.post("/wibg/:id/score",                controller.submitScore);
   router.get("/users",                          controller.getUsers);
   router.patch("/users/:id/status",             controller.updateUserStatus);
 

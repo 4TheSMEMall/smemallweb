@@ -43,6 +43,23 @@ export interface AdminApplicationFilters {
   limit?: number;
 }
 
+export interface ScoreInput {
+  innovation: number;
+  marketViability: number;
+  teamExecution: number;
+  financialClarity: number;
+  pitchDelivery: number;
+  notes?: string;
+}
+
+export const SCORE_MAX = {
+  innovation: 25,
+  marketViability: 20,
+  teamExecution: 20,
+  financialClarity: 20,
+  pitchDelivery: 15,
+} as const;
+
 export class PrismaWibgRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
@@ -120,5 +137,32 @@ export class PrismaWibgRepository {
 
   async findAttendeeByEmail(email: string) {
     return this.prisma.wibgAttendee.findUnique({ where: { email } });
+  }
+
+  // ── Judging ───────────────────────────────────────────────────
+
+  async upsertScore(applicationId: string, judgeId: string, data: ScoreInput) {
+    return this.prisma.wibgScore.upsert({
+      where: { applicationId_judgeId: { applicationId, judgeId } },
+      create: { applicationId, judgeId, ...data },
+      update: { ...data },
+    });
+  }
+
+  async findScoresByApplicationId(applicationId: string) {
+    return this.prisma.wibgScore.findMany({
+      where: { applicationId },
+      include: { judge: { select: { firstName: true, lastName: true } } },
+      orderBy: { createdAt: "asc" },
+    });
+  }
+
+  /** Batch-fetch all scores for a list of applications — used by the scoreboard. */
+  async findScoresByApplicationIds(applicationIds: string[]) {
+    if (applicationIds.length === 0) return [];
+    return this.prisma.wibgScore.findMany({
+      where: { applicationId: { in: applicationIds } },
+      include: { judge: { select: { firstName: true, lastName: true } } },
+    });
   }
 }

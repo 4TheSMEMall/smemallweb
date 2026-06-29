@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import type { GetAdminStatsUseCase } from "../../application/use-cases/admin/GetAdminStatsUseCase";
-import type { PrismaWibgRepository, WibgApplicationStatus } from "../../infrastructure/repositories/PrismaWibgRepository";
+import { SCORE_MAX, type PrismaWibgRepository, type WibgApplicationStatus, type ScoreInput } from "../../infrastructure/repositories/PrismaWibgRepository";
 import type { UpdateApplicationStatusUseCase } from "../../application/use-cases/wibg/UpdateApplicationStatusUseCase";
 import type { IUserRepository } from "../../domain/repositories/IUserRepository";
 import type { IProviderRepository } from "../../domain/repositories/IProviderRepository";
@@ -87,6 +87,79 @@ export class AdminController {
     } catch (err) { next(err); }
   };
 
+  // ── WIBG judging ────────────────────────────────────────────
+
+  submitScore = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const app = await this.wibgRepo.findApplicationById(req.params.id as string);
+      if (!app) { res.status(404).json({ success: false, message: "Application not found" }); return; }
+      if (app.status.startsWith("WINNER_")) {
+        res.status(409).json({ success: false, message: "Scoring is locked — this application has already been awarded a placement." });
+        return;
+      }
+
+      const body = req.body as ScoreInput;
+      const fields: (keyof typeof SCORE_MAX)[] = ["innovation", "marketViability", "teamExecution", "financialClarity", "pitchDelivery"];
+      for (const f of fields) {
+        const v = body[f];
+        if (typeof v !== "number" || v < 0 || v > SCORE_MAX[f]) {
+          res.status(400).json({ success: false, message: `${f} must be between 0 and ${SCORE_MAX[f]}` });
+          return;
+        }
+      }
+
+      const score = await this.wibgRepo.upsertScore(req.params.id as string, req.user!.sub, {
+        innovation: body.innovation,
+        marketViability: body.marketViability,
+        teamExecution: body.teamExecution,
+        financialClarity: body.financialClarity,
+        pitchDelivery: body.pitchDelivery,
+        notes: body.notes,
+      });
+      res.json({ success: true, data: score });
+    } catch (err) { next(err); }
+  };
+
+  getApplicationScores = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const scores = await this.wibgRepo.findScoresByApplicationId(req.params.id as string);
+      res.json({ success: true, data: summarizeScores(scores) });
+    } catch (err) { next(err); }
+  };
+
+  getScoreboard = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { status } = req.query as { status?: WibgApplicationStatus };
+      const { applications } = await this.wibgRepo.findApplications({ status, limit: 200 });
+      const ids = applications.map((a) => a.id);
+      const allScores = await this.wibgRepo.findScoresByApplicationIds(ids);
+
+      const board = applications
+        .map((app) => {
+          const appScores = allScores.filter((s) => s.applicationId === app.id);
+          const summary = summarizeScores(appScores);
+          const myScore = appScores.find((s) => s.judgeId === req.user!.sub) ?? null;
+          return {
+            id: app.id,
+            businessName: app.businessName,
+            founderName: app.founderName,
+            status: app.status,
+            judgeCount: summary.judgeCount,
+            average: summary.average,
+            myScore: myScore ? {
+              innovation: myScore.innovation, marketViability: myScore.marketViability,
+              teamExecution: myScore.teamExecution, financialClarity: myScore.financialClarity,
+              pitchDelivery: myScore.pitchDelivery,
+              total: myScore.innovation + myScore.marketViability + myScore.teamExecution + myScore.financialClarity + myScore.pitchDelivery,
+            } : null,
+          };
+        })
+        .sort((a, b) => b.average.total - a.average.total);
+
+      res.json({ success: true, data: board });
+    } catch (err) { next(err); }
+  };
+
   getUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { role, search, page, pageSize } = req.query as Record<string, string>;
@@ -159,5 +232,37 @@ export class AdminController {
       await this.cancelServiceRequestUseCase.execute(req.params.id as string, adminNotes ?? null);
       res.json({ success: true });
     } catch (err) { next(err); }
+  };
+}
+
+interface ScoreRow {
+  judgeId: string;
+  judge: { firstName: string; lastName: string };
+  innovation: number; marketViability: number; teamExecution: number; financialClarity: number; pitchDelivery: number;
+  notes: string | null;
+}
+
+function summarizeScores(scores: ScoreRow[]) {
+  const total = (s: ScoreRow) => s.innovation + s.marketViability + s.teamExecution + s.financialClarity + s.pitchDelivery;
+  const judgeCount = scores.length;
+
+  const sum = (key: keyof typeof SCORE_MAX) => scores.reduce((acc, s) => acc + s[key], 0);
+  const avg = (key: keyof typeof SCORE_MAX) => judgeCount ? Math.round((sum(key) / judgeCount) * 10) / 10 : 0;
+
+  return {
+    judgeCount,
+    judges: scores.map((s) => ({
+      judgeId: s.judgeId,
+      judgeName: `${s.judge.firstName} ${s.judge.lastName}`,
+      innovation: s.innovation, marketViability: s.marketViability, teamExecution: s.teamExecution,
+      financialClarity: s.financialClarity, pitchDelivery: s.pitchDelivery,
+      total: total(s),
+      notes: s.notes,
+    })),
+    average: {
+      innovation: avg("innovation"), marketViability: avg("marketViability"), teamExecution: avg("teamExecution"),
+      financialClarity: avg("financialClarity"), pitchDelivery: avg("pitchDelivery"),
+      total: judgeCount ? Math.round((scores.reduce((acc, s) => acc + total(s), 0) / judgeCount) * 10) / 10 : 0,
+    },
   };
 }
