@@ -9,6 +9,9 @@ import type { CreateProviderUseCase } from "../../application/use-cases/services
 import type { AssignProviderUseCase } from "../../application/use-cases/services/AssignProviderUseCase";
 import type { CancelServiceRequestUseCase } from "../../application/use-cases/services/CancelServiceRequestUseCase";
 import { sendVideoReminderEmail } from "../../infrastructure/services/BrevoEmailService";
+import { PrismaActivityLogRepository, type ActivityLogFilters } from "../../infrastructure/repositories/PrismaActivityLogRepository";
+
+const activityLogRepo = new PrismaActivityLogRepository();
 
 const VALID_STATUSES: WibgApplicationStatus[] = [
   "SUBMITTED", "UNDER_REVIEW", "TOP_20", "TOP_6",
@@ -215,6 +218,20 @@ export class AdminController {
     } catch (err) { next(err); }
   };
 
+  getAssignedServiceRequests = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const requests = await this.serviceRequestRepo.findByStatusWithDetails("ASSIGNED");
+      res.json({ success: true, data: requests });
+    } catch (err) { next(err); }
+  };
+
+  getMandateSentRequests = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const requests = await this.serviceRequestRepo.findByStatusWithDetails("MANDATE_SENT");
+      res.json({ success: true, data: requests });
+    } catch (err) { next(err); }
+  };
+
   assignServiceRequest = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { providerId, priceAgreed, adminNotes } = req.body as { providerId: string; priceAgreed?: string; adminNotes?: string };
@@ -231,6 +248,85 @@ export class AdminController {
       const { adminNotes } = req.body as { adminNotes?: string };
       await this.cancelServiceRequestUseCase.execute(req.params.id as string, adminNotes ?? null);
       res.json({ success: true });
+    } catch (err) { next(err); }
+  };
+
+  // ── Super Admin — Team Management ───────────────────────────────────────
+
+  /** List all admin accounts (regular + super) */
+  listAdmins = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const admins = await this.userRepo.findAll({ role: "ADMIN" });
+      res.json({ success: true, data: admins.map((a) => a.toPublicProfile()) });
+    } catch (err) { next(err); }
+  };
+
+  /** Create a new admin account */
+  createAdmin = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email, firstName, lastName, phone, password } = req.body as {
+        email: string; firstName: string; lastName: string; phone?: string; password: string;
+      };
+      if (!email || !firstName || !lastName || !password) {
+        res.status(400).json({ success: false, message: "email, firstName, lastName and password are required" });
+        return;
+      }
+      const existing = await this.userRepo.findByEmail(email.toLowerCase());
+      if (existing) { res.status(409).json({ success: false, message: "An account with this email already exists" }); return; }
+
+      // Hash password — import bcryptjs inline to avoid circular deps
+      const bcrypt = await import("bcryptjs");
+      const passwordHash = await bcrypt.hash(password, 12);
+
+      const admin = await this.userRepo.create({
+        email: email.toLowerCase().trim(),
+        passwordHash,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        role: "ADMIN",
+        phone,
+      });
+      res.status(201).json({ success: true, data: admin.toPublicProfile() });
+    } catch (err) { next(err); }
+  };
+
+  /** Toggle isSuperAdmin for an admin account */
+  toggleSuperAdmin = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { isSuperAdmin } = req.body as { isSuperAdmin: boolean };
+      if (typeof isSuperAdmin !== "boolean") {
+        res.status(400).json({ success: false, message: "isSuperAdmin must be a boolean" }); return;
+      }
+      // Prevent self-demotion
+      if (req.params.id === req.user!.sub && !isSuperAdmin) {
+        res.status(400).json({ success: false, message: "You cannot remove your own super admin rights" }); return;
+      }
+      const user = await this.userRepo.setSuperAdmin(req.params.id as string, isSuperAdmin);
+      res.json({ success: true, data: user.toPublicProfile() });
+    } catch (err) { next(err); }
+  };
+
+  // ── Super Admin — Activity Log ───────────────────────────────────────────
+
+  getActivityLog = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { actorId, entityType, entityId, from, to, page, pageSize } = req.query as Record<string, string>;
+      const filters: ActivityLogFilters = {
+        actorId, entityType, entityId,
+        from:  from  ? new Date(from)  : undefined,
+        to:    to    ? new Date(to)    : undefined,
+        page:  page     ? parseInt(page, 10)     : 1,
+        pageSize: pageSize ? parseInt(pageSize, 10) : 40,
+      };
+      const result = await activityLogRepo.findAll(filters);
+      res.json({ success: true, data: result });
+    } catch (err) { next(err); }
+  };
+
+  getActivityStats = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const stats = await activityLogRepo.statsByActor();
+      res.json({ success: true, data: stats });
     } catch (err) { next(err); }
   };
 }

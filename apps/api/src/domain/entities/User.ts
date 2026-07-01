@@ -14,6 +14,7 @@ export class UserEntity {
     public readonly lastName: string,
     public readonly role: UserRole,
     public readonly status: UserStatus,
+    public readonly isSuperAdmin: boolean,
     public readonly phone: string | undefined,
     public readonly createdAt: Date,
     public readonly updatedAt: Date

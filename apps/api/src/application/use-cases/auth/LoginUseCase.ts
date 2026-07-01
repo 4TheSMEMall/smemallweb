@@ -39,6 +39,7 @@ export class LoginUseCase {
       sub: user.id,
       email: user.email,
       role: user.role,
+      isSuperAdmin: user.isSuperAdmin || undefined, // omit from token when false to keep payload small
     });
 
     return {
@@ -50,6 +51,7 @@ export class LoginUseCase {
         lastName: user.lastName,
         role: user.role,
         status: user.status,
+        isSuperAdmin: user.isSuperAdmin || undefined,
         phone: user.phone,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,

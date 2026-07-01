@@ -1,4 +1,4 @@
-export type ServiceRequestStatus = "PENDING_REVIEW" | "ASSIGNED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+export type ServiceRequestStatus = "PENDING_REVIEW" | "ASSIGNED" | "MANDATE_SENT" | "MANDATE_SIGNED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
 
 export class ServiceRequestEntity {
   constructor(

@@ -9,15 +9,17 @@ export interface User {
   lastName: string;
   role: UserRole;
   status: UserStatus;
+  isSuperAdmin?: boolean;
   phone?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface AuthTokenPayload {
-  sub: string;       // user id
+  sub: string;           // user id
   email: string;
   role: UserRole;
+  isSuperAdmin?: boolean; // only true for ADMIN users with elevated rights
   iat?: number;
   exp?: number;
 }

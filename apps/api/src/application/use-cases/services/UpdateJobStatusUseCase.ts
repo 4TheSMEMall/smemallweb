@@ -4,11 +4,13 @@ import type { ServiceRequestStatus } from "../../../domain/entities/ServiceReque
 import { ForbiddenError, NotFoundError, ConflictError } from "../../../domain/errors/DomainError";
 
 const ALLOWED_TRANSITIONS: Record<ServiceRequestStatus, ServiceRequestStatus[]> = {
-  PENDING_REVIEW: [],
-  ASSIGNED:       ["IN_PROGRESS"],
-  IN_PROGRESS:    ["COMPLETED"],
-  COMPLETED:      [],
-  CANCELLED:      [],
+  PENDING_REVIEW:  [],
+  ASSIGNED:        ["IN_PROGRESS"],
+  MANDATE_SENT:    [],          // provider waits for SME to sign
+  MANDATE_SIGNED:  ["IN_PROGRESS"],
+  IN_PROGRESS:     ["COMPLETED"],
+  COMPLETED:       [],
+  CANCELLED:       [],
 };
 
 /**

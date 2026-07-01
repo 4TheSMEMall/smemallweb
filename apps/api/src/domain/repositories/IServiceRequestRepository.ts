@@ -3,6 +3,7 @@ import type { ServiceRequestEntity, ServiceRequestStatus, ServiceRequestWithDeta
 export interface IServiceRequestRepository {
   findById(id: string): Promise<ServiceRequestEntity | null>;
   findPendingWithDetails(): Promise<ServiceRequestWithDetails[]>;
+  findByStatusWithDetails(status: ServiceRequestStatus): Promise<ServiceRequestWithDetails[]>;
   findByUserIdWithDetails(userId: string): Promise<ServiceRequestWithDetails[]>;
   findByProviderIdWithDetails(providerId: string): Promise<ServiceRequestWithDetails[]>;
   create(gapId: string, userId: string): Promise<ServiceRequestEntity>;

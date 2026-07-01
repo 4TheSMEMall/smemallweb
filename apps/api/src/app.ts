@@ -26,6 +26,11 @@ import { UpdateJobStatusUseCase } from "./application/use-cases/services/UpdateJ
 import { RateServiceUseCase } from "./application/use-cases/services/RateServiceUseCase";
 import { CreateProviderUseCase } from "./application/use-cases/services/CreateProviderUseCase";
 import { CancelServiceRequestUseCase } from "./application/use-cases/services/CancelServiceRequestUseCase";
+import { PrismaMandateRepository } from "./infrastructure/repositories/PrismaMandateRepository";
+import { CreateOrUpdateMandateUseCase } from "./application/use-cases/mandate/CreateOrUpdateMandateUseCase";
+import { SendMandateUseCase } from "./application/use-cases/mandate/SendMandateUseCase";
+import { RespondToMandateUseCase } from "./application/use-cases/mandate/RespondToMandateUseCase";
+import { MandateController } from "./presentation/controllers/MandateController";
 import { GenerateBhcLaunchTokenUseCase } from "./application/use-cases/bhc/GenerateBhcLaunchTokenUseCase";
 import { AuthController } from "./presentation/controllers/AuthController";
 import { WebhookController } from "./presentation/controllers/WebhookController";
@@ -51,6 +56,7 @@ export function createApp(): Express {
   const bhcGapRepo     = new PrismaBhcGapRepository(prisma);
   const providerRepo   = new PrismaProviderRepository(prisma);
   const serviceRequestRepo = new PrismaServiceRequestRepository(prisma);
+  const mandateRepo        = new PrismaMandateRepository(prisma);
   const wibgRepo       = new PrismaWibgRepository(prisma);
   const passwordService = new BcryptPasswordService();
   const tokenService   = new JwtTokenService(
@@ -71,6 +77,9 @@ export function createApp(): Express {
   const rateServiceUseCase         = new RateServiceUseCase(serviceRequestRepo, bhcGapRepo, providerRepo);
   const createProviderUseCase      = new CreateProviderUseCase(userRepo, providerRepo, passwordService);
   const cancelServiceRequestUseCase = new CancelServiceRequestUseCase(serviceRequestRepo, bhcGapRepo);
+  const createOrUpdateMandateUseCase = new CreateOrUpdateMandateUseCase(mandateRepo, serviceRequestRepo);
+  const sendMandateUseCase           = new SendMandateUseCase(mandateRepo, serviceRequestRepo);
+  const respondToMandateUseCase      = new RespondToMandateUseCase(mandateRepo, serviceRequestRepo);
   const generateBhcLaunchTokenUseCase = new GenerateBhcLaunchTokenUseCase(
     process.env.BHC_WEBHOOK_SECRET ?? "change-me"
   );
@@ -95,6 +104,7 @@ export function createApp(): Express {
   );
 
   const serviceController = new ServiceController(requestServiceUseCase, rateServiceUseCase, serviceRequestRepo);
+  const mandateController = new MandateController(createOrUpdateMandateUseCase, sendMandateUseCase, respondToMandateUseCase, mandateRepo);
 
   const providerController = new ProviderController(updateJobStatusUseCase, providerRepo, serviceRequestRepo);
 
@@ -156,10 +166,10 @@ export function createApp(): Express {
   });
 
   app.use("/api/auth",     authLimiter, createAuthRouter(authController, authenticate));
-  app.use("/api/bhc",      createBhcRouter(bhcController, serviceController, authenticate));
+  app.use("/api/bhc",      createBhcRouter(bhcController, serviceController, mandateController, authenticate));
   app.use("/api/provider", createProviderRouter(providerController, tokenService));
   app.use("/api/wibg",     createWibgRouter(wibgController, authenticate));
-  app.use("/api/admin",    createAdminRouter(adminController, tokenService));
+  app.use("/api/admin",    createAdminRouter(adminController, mandateController, tokenService));
 
   app.use(errorHandler);
   return app;

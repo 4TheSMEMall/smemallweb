@@ -9,6 +9,10 @@ import {
   ClipboardIcon, AcademicCapIcon,
 } from "@/components/ui/icons";
 
+function ShieldSmall() {
+  return <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>;
+}
+
 const navItems = [
   { label: "Overview",      path: "/admin",              icon: <GridIcon /> },
   { label: "WIBG Pipeline", path: "/admin/wibg",         icon: <TrophyIcon /> },
@@ -17,6 +21,7 @@ const navItems = [
   { label: "Partners",      path: "/admin/partners",     icon: <BuildingIcon /> },
   { label: "Consultants",   path: "/admin/consultants",  icon: <StarIcon /> },
   { label: "Announcements", path: "/admin/content",      icon: <MegaphoneIcon /> },
+  { label: "Team",          path: "/admin/team",         icon: <ShieldSmall /> },
 ];
 
 const quickManage = [
@@ -59,12 +64,22 @@ export default function AdminDashboard() {
         <div className="relative bg-navy-900 rounded-3xl p-6 sm:p-8 overflow-hidden">
           <div className="absolute inset-0 bg-dots opacity-20" />
           <div className="absolute right-0 top-0 w-64 h-full bg-gradient-radial from-red-500/20 via-transparent to-transparent pointer-events-none" />
-          <div className="relative">
-            <p className="text-gray-400 text-sm mb-1">Admin Portal</p>
-            <h1 className="text-2xl font-extrabold text-white mb-1">Platform Overview</h1>
-            <p className="text-gray-400 text-sm">
-              Logged in as <span className="text-white font-semibold">{user?.firstName} {user?.lastName}</span>
-            </p>
+          <div className="relative flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <p className="text-gray-400 text-sm mb-1">Admin Portal</p>
+              <h1 className="text-2xl font-extrabold text-white mb-1">Platform Overview</h1>
+              <p className="text-gray-400 text-sm">
+                Logged in as <span className="text-white font-semibold">{user?.firstName} {user?.lastName}</span>
+                {user?.isSuperAdmin && (
+                  <span className="ml-2 text-[9px] font-black uppercase tracking-wider bg-red-500/80 text-white px-2 py-0.5 rounded-full">Super Admin</span>
+                )}
+              </p>
+            </div>
+            {user?.isSuperAdmin && (
+              <a href="/admin/team" className="flex-shrink-0 text-xs font-bold text-white/70 hover:text-white border border-white/15 hover:border-white/30 px-3 py-2 rounded-xl transition-colors">
+                Manage Team →
+              </a>
+            )}
           </div>
         </div>
 

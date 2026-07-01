@@ -71,6 +71,14 @@ export class PrismaUserRepository implements IUserRepository {
     return this.db.user.count({ where: this.buildWhereClause(filters) });
   }
 
+  async setSuperAdmin(id: string, isSuperAdmin: boolean): Promise<UserEntity> {
+    const row = await this.db.user.update({
+      where: { id },
+      data: { isSuperAdmin },
+    });
+    return this.toEntity(row);
+  }
+
   private buildWhereClause(filters?: UserFilters) {
     if (!filters) return {};
     return {
@@ -104,6 +112,7 @@ export class PrismaUserRepository implements IUserRepository {
     lastName: string;
     role: UserRole;
     status: UserStatus;
+    isSuperAdmin: boolean;
     phone: string | null;
     createdAt: Date;
     updatedAt: Date;
@@ -116,6 +125,7 @@ export class PrismaUserRepository implements IUserRepository {
       row.lastName,
       row.role,
       row.status,
+      row.isSuperAdmin,
       row.phone ?? undefined,
       row.createdAt,
       row.updatedAt

@@ -22,22 +22,26 @@ enum UserStatus {
 }
 
 model User {
-  id           String      @id @default(cuid())
-  email        String      @unique
-  passwordHash String      @map("password_hash")
-  firstName    String      @map("first_name")
-  lastName     String      @map("last_name")
-  role         UserRole
-  status       UserStatus  @default(ACTIVE)
-  phone        String?
-  createdAt    DateTime    @default(now()) @map("created_at")
-  updatedAt    DateTime    @updatedAt @map("updated_at")
+  id            String      @id @default(cuid())
+  email         String      @unique
+  passwordHash  String      @map("password_hash")
+  firstName     String      @map("first_name")
+  lastName      String      @map("last_name")
+  role          UserRole
+  status        UserStatus  @default(ACTIVE)
+  isSuperAdmin  Boolean     @default(false) @map("is_super_admin")
+  phone         String?
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
 
-  bhcResults      BhcResult[]
-  bhcGaps         BhcGap[]
-  provider        Provider?
-  serviceRequests ServiceRequest[]
-  wibgScores      WibgScore[]
+  bhcResults        BhcResult[]
+  bhcGaps           BhcGap[]
+  provider          Provider?
+  serviceRequests   ServiceRequest[]
+  wibgScores        WibgScore[]
+  mandatesCreated   Mandate[]     @relation("MandateCreatedBy")
+  mandatesSigned    Mandate[]     @relation("MandateSigned")
+  activityLogs      ActivityLog[]
 
   @@map("users")
 }
@@ -101,9 +105,18 @@ model BhcGap {
 enum ServiceRequestStatus {
   PENDING_REVIEW
   ASSIGNED
+  MANDATE_SENT    // mandate drafted and sent to SME for review
+  MANDATE_SIGNED  // SME approved the mandate — work can now begin
   IN_PROGRESS
   COMPLETED
   CANCELLED
+}
+
+enum MandateStatus {
+  DRAFT     // admin is still editing
+  SENT      // SME has been notified to review
+  SIGNED    // SME approved
+  REJECTED  // SME rejected — admin must revise
 }
 
 // Admin-managed directory of vetted service providers (CAC agents, bookkeepers,
@@ -152,11 +165,61 @@ model ServiceRequest {
   gap      BhcGap    @relation(fields: [gapId], references: [id])
   user     User      @relation(fields: [userId], references: [id])
   provider Provider? @relation(fields: [providerId], references: [id])
+  mandate  Mandate?
 
   @@index([userId])
   @@index([providerId])
   @@index([gapId])
   @@map("service_requests")
+}
+
+// The formal agreement between SME and provider — drafted by admin,
+// reviewed and signed by the SME before work starts.
+model Mandate {
+  id               String        @id @default(cuid())
+  serviceRequestId String        @unique @map("service_request_id")
+  createdByAdminId String        @map("created_by_admin_id")
+  title            String
+  scope            String        // what will be done
+  deliverables     String        // what the SME receives on completion
+  timeline         String        // agreed duration / deadline
+  price            Float         // confirmed engagement price
+  currency         String        @default("NGN")
+  status           MandateStatus @default(DRAFT)
+  adminNotes       String?       @map("admin_notes")
+  sentAt           DateTime?     @map("sent_at")
+  signedAt         DateTime?     @map("signed_at")
+  signedByUserId   String?       @map("signed_by_user_id")
+  rejectedAt       DateTime?     @map("rejected_at")
+  rejectionReason  String?       @map("rejection_reason")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  serviceRequest ServiceRequest @relation(fields: [serviceRequestId], references: [id])
+  createdBy      User           @relation("MandateCreatedBy", fields: [createdByAdminId], references: [id])
+  signedBy       User?          @relation("MandateSigned", fields: [signedByUserId], references: [id])
+
+  @@map("mandates")
+}
+
+// Immutable record of every significant action taken by any user.
+// Super admins read this to see who did what and when.
+model ActivityLog {
+  id         String   @id @default(cuid())
+  actorId    String   @map("actor_id")
+  actorRole  String   @map("actor_role")
+  action     String   // e.g. "mandate.sent", "service_request.assigned", "admin.created"
+  entityType String   @map("entity_type") // "ServiceRequest" | "Mandate" | "User" | etc.
+  entityId   String   @map("entity_id")
+  metadata   Json?    // extra context — old/new status, amounts, names etc.
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  actor User @relation(fields: [actorId], references: [id])
+
+  @@index([actorId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("activity_logs")
 }
 
 model WibgApplication {

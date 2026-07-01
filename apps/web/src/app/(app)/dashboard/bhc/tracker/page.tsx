@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { serviceApi, statusBadgeColor, statusLabel, type ServiceRequestWithDetails } from "@/lib/serviceApi";
+import { serviceApi, statusBadgeColor, statusLabel, type ServiceRequestWithDetails, type Mandate } from "@/lib/serviceApi";
 import { GridIcon, ClipboardIcon, TrophyIcon, AppsIcon, UserIcon, WrenchIcon } from "@/components/ui/icons";
 
 const navItems = [
@@ -27,6 +27,7 @@ export default function FixItTrackerPage() {
   const list = requests ?? [];
   const activeCount = list.filter((r) => r.status !== "COMPLETED" && r.status !== "CANCELLED").length;
   const completedCount = list.filter((r) => r.status === "COMPLETED").length;
+  const [mandateView, setMandateView] = useState<{ req: ServiceRequestWithDetails; mandate: Mandate } | null>(null);
 
   return (
     <DashboardLayout navItems={navItems}>
@@ -92,16 +93,29 @@ export default function FixItTrackerPage() {
                 </span>
               </div>
 
-              {req.provider ? (
+              {req.status === "MANDATE_SENT" && (
+                <div className="bg-violet-50 border border-violet-200 rounded-xl p-4 mb-4">
+                  <p className="text-sm font-bold text-violet-900 mb-1">Action required — Mandate awaiting your signature</p>
+                  <p className="text-xs text-violet-700 mb-3">Our team has prepared a service mandate for you. Please review the scope and price before work begins.</p>
+                  <button onClick={async () => {
+                    const r = await serviceApi.getMandateForSme(req.id);
+                    if (r.data.data) setMandateView({ req, mandate: r.data.data });
+                  }} className="text-xs font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-xl transition-all">
+                    Review &amp; Sign Mandate →
+                  </button>
+                </div>
+              )}
+
+              {req.provider && req.status !== "MANDATE_SENT" ? (
                 <div className="bg-gray-50 rounded-xl p-4 mb-4">
                   <p className="text-xs font-bold text-navy-900">{req.provider.businessName}</p>
                   <p className="text-[11px] text-gray-500 mt-0.5">{req.provider.contactEmail} · {req.provider.contactPhone}</p>
                   {req.priceAgreed && <p className="text-[11px] text-gray-500 mt-1">Agreed price: <span className="font-semibold text-navy-900">{req.priceAgreed}</span></p>}
                   {req.providerNotes && <p className="text-[11px] text-gray-500 mt-1">Note: {req.providerNotes}</p>}
                 </div>
-              ) : (
+              ) : req.status === "PENDING_REVIEW" || req.status === "ASSIGNED" ? (
                 <p className="text-xs text-gray-400 mb-4">Awaiting provider assignment — our team is matching you with a vetted provider.</p>
-              )}
+              ) : null}
 
               <div className="flex items-center justify-between gap-3 flex-wrap">
                 <p className="text-[11px] text-gray-400">
@@ -141,7 +155,104 @@ export default function FixItTrackerPage() {
           }}
         />
       )}
+
+      {mandateView && (
+        <MandateReviewModal
+          req={mandateView.req}
+          mandate={mandateView.mandate}
+          onClose={() => setMandateView(null)}
+          onResponded={() => {
+            setMandateView(null);
+            queryClient.invalidateQueries({ queryKey: ["service-requests"] });
+            queryClient.invalidateQueries({ queryKey: ["bhc-gaps"] });
+          }}
+        />
+      )}
     </DashboardLayout>
+  );
+}
+
+function MandateReviewModal({ req, mandate, onClose, onResponded }: {
+  req: ServiceRequestWithDetails; mandate: Mandate; onClose: () => void; onResponded: () => void;
+}) {
+  const [rejecting, setRejecting] = useState(false);
+  const [reason, setReason] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  async function sign() {
+    setSubmitting(true); setError("");
+    try { await serviceApi.signMandate(req.id); onResponded(); }
+    catch { setError("Could not sign. Please try again."); }
+    finally { setSubmitting(false); }
+  }
+
+  async function reject() {
+    if (!reason.trim()) { setError("Please provide a reason."); return; }
+    setSubmitting(true); setError("");
+    try { await serviceApi.rejectMandate(req.id, reason); onResponded(); }
+    catch { setError("Could not reject. Please try again."); }
+    finally { setSubmitting(false); }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-navy-950/80 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
+        <div className="px-6 sm:px-8 pt-6 pb-4 border-b border-gray-100">
+          <span className="text-[10px] font-black text-violet-600 uppercase tracking-widest">Service Mandate</span>
+          <h2 className="text-xl font-extrabold text-navy-900 mt-1">{mandate.title}</h2>
+          <p className="text-xs text-gray-400 mt-1">Please read carefully before approving</p>
+        </div>
+        <div className="p-6 sm:p-8 space-y-5">
+          {[
+            { label: "Scope of Work",  val: mandate.scope },
+            { label: "Deliverables",   val: mandate.deliverables },
+            { label: "Timeline",       val: mandate.timeline },
+          ].map((s) => (
+            <div key={s.label}>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">{s.label}</p>
+              <p className="text-sm text-gray-700 leading-relaxed">{s.val}</p>
+            </div>
+          ))}
+          <div className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
+            <p className="text-sm font-semibold text-gray-500">Agreed Price</p>
+            <p className="text-lg font-extrabold text-navy-900">₦{mandate.price.toLocaleString()}</p>
+          </div>
+          <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 text-xs text-amber-700">
+            By clicking <strong>Sign & Approve</strong>, you confirm your agreement to this scope, price and timeline. Work begins after your approval.
+          </div>
+          {rejecting && (
+            <div>
+              <p className="text-sm font-semibold text-navy-900 mb-1.5">Rejection reason</p>
+              <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={3}
+                placeholder="Tell us what needs to change and we'll revise the mandate..."
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors resize-none" />
+            </div>
+          )}
+          {error && <p className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-xl px-4 py-3">{error}</p>}
+          {!rejecting ? (
+            <div className="flex gap-3">
+              <button onClick={() => setRejecting(true)} className="border border-red-200 text-red-600 hover:bg-red-50 font-semibold px-5 py-3 rounded-xl text-sm transition-all">
+                Reject
+              </button>
+              <button onClick={onClose} className="border border-gray-200 text-gray-500 font-semibold px-5 py-3 rounded-xl text-sm">
+                Review Later
+              </button>
+              <button onClick={sign} disabled={submitting} className="flex-1 bg-navy-900 hover:bg-emerald-600 disabled:opacity-60 text-white font-bold py-3 rounded-xl text-sm transition-all">
+                {submitting ? "Signing…" : "✓ Sign & Approve"}
+              </button>
+            </div>
+          ) : (
+            <div className="flex gap-3">
+              <button onClick={() => setRejecting(false)} className="border border-gray-200 text-gray-500 font-semibold px-5 py-3 rounded-xl text-sm">Back</button>
+              <button onClick={reject} disabled={submitting} className="flex-1 bg-red-500 hover:bg-red-600 disabled:opacity-60 text-white font-bold py-3 rounded-xl text-sm transition-all">
+                {submitting ? "Rejecting…" : "Submit Rejection"}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 

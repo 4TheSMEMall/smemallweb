@@ -14,6 +14,7 @@ export interface IUserRepository {
   update(id: string, data: Partial<UpdateUserData>): Promise<UserEntity>;
   findAll(filters?: UserFilters): Promise<UserEntity[]>;
   count(filters?: UserFilters): Promise<number>;
+  setSuperAdmin(id: string, isSuperAdmin: boolean): Promise<UserEntity>;
 }
 
 export interface CreateUserData {

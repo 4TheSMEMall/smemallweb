@@ -27,6 +27,15 @@ export class PrismaServiceRequestRepository implements IServiceRequestRepository
     return rows.map((r) => this.toDetails(r));
   }
 
+  async findByStatusWithDetails(status: ServiceRequestStatus): Promise<ServiceRequestWithDetails[]> {
+    const rows = await this.db.serviceRequest.findMany({
+      where: { status },
+      include: detailsInclude,
+      orderBy: { requestedAt: "asc" },
+    });
+    return rows.map((r) => this.toDetails(r));
+  }
+
   async findByUserIdWithDetails(userId: string): Promise<ServiceRequestWithDetails[]> {
     const rows = await this.db.serviceRequest.findMany({
       where: { userId },

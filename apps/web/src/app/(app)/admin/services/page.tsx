@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { serviceApi, statusBadgeColor, statusLabel, type Provider, type ServiceRequestWithDetails } from "@/lib/serviceApi";
+import { serviceApi, statusBadgeColor, statusLabel, type Provider, type ServiceRequestWithDetails, type Mandate } from "@/lib/serviceApi";
 import {
   CheckCircleIcon, WrenchIcon, GridIcon, TrophyIcon, UsersIcon, BuildingIcon, StarIcon, MegaphoneIcon,
 } from "@/components/ui/icons";
@@ -23,6 +23,7 @@ export default function AdminServicesPage() {
   const [showAddProvider, setShowAddProvider] = useState(false);
   const [tempPasswordResult, setTempPasswordResult] = useState<{ businessName: string; tempPassword: string } | null>(null);
   const [assigning, setAssigning] = useState<ServiceRequestWithDetails | null>(null);
+  const [mandating, setMandating] = useState<ServiceRequestWithDetails | null>(null);
 
   const { data: providers, isLoading: loadingProviders } = useQuery({
     queryKey: ["admin-providers"],
@@ -34,9 +35,21 @@ export default function AdminServicesPage() {
     queryFn:  () => serviceApi.getPendingServiceRequests().then((r) => r.data.data!),
   });
 
+  const { data: assigned } = useQuery({
+    queryKey: ["admin-assigned-requests"],
+    queryFn:  () => serviceApi.getAssignedServiceRequests().then((r) => r.data.data!),
+  });
+
+  const { data: mandateSent } = useQuery({
+    queryKey: ["admin-mandate-sent"],
+    queryFn:  () => serviceApi.getMandateSentRequests().then((r) => r.data.data!),
+  });
+
   function refresh() {
     queryClient.invalidateQueries({ queryKey: ["admin-providers"] });
     queryClient.invalidateQueries({ queryKey: ["admin-pending-requests"] });
+    queryClient.invalidateQueries({ queryKey: ["admin-assigned-requests"] });
+    queryClient.invalidateQueries({ queryKey: ["admin-mandate-sent"] });
   }
 
   async function handleCancel(req: ServiceRequestWithDetails) {
@@ -116,6 +129,62 @@ export default function AdminServicesPage() {
           </div>
         </div>
 
+        {/* Awaiting Mandate — ASSIGNED but no mandate sent yet */}
+        {(assigned ?? []).length > 0 && (
+          <div className="bg-white rounded-2xl shadow-card border border-gray-100">
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <h2 className="font-extrabold text-navy-900">Awaiting Mandate</h2>
+                <p className="text-gray-400 text-sm mt-0.5">Provider assigned — create and send the mandate next</p>
+              </div>
+              <span className="text-xs font-bold text-violet-700 bg-violet-50 border border-violet-200 px-3 py-1 rounded-full">
+                {assigned?.length ?? 0} awaiting
+              </span>
+            </div>
+            <div className="divide-y divide-gray-100">
+              {(assigned ?? []).map((req) => (
+                <div key={req.id} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{req.gap.section}</p>
+                    <p className="font-bold text-navy-900">{req.gap.gapTitle}</p>
+                    {req.smeBusinessOwner && <p className="text-xs text-gray-500 mt-1">{req.smeBusinessOwner.firstName} {req.smeBusinessOwner.lastName}</p>}
+                    {req.provider && <p className="text-xs text-blue-600 mt-0.5">Provider: {req.provider.businessName}</p>}
+                  </div>
+                  <button onClick={() => setMandating(req)}
+                    className="flex-shrink-0 text-xs font-bold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-lg transition-colors">
+                    Create Mandate →
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Mandate Sent — waiting for SME signature */}
+        {(mandateSent ?? []).length > 0 && (
+          <div className="bg-white rounded-2xl shadow-card border border-gray-100">
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+              <h2 className="font-extrabold text-navy-900">Mandate Sent — Awaiting Signature</h2>
+              <span className="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full">
+                {mandateSent?.length ?? 0} pending
+              </span>
+            </div>
+            <div className="divide-y divide-gray-100">
+              {(mandateSent ?? []).map((req) => (
+                <div key={req.id} className="p-6 flex items-center gap-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-navy-900 text-sm">{req.gap.gapTitle}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{req.smeBusinessOwner?.firstName} {req.smeBusinessOwner?.lastName} · {req.smeBusinessOwner?.email}</p>
+                  </div>
+                  <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-full">
+                    Waiting for SME
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Providers directory */}
         <div className="bg-white rounded-2xl shadow-card border border-gray-100">
           <div className="p-6 border-b border-gray-100 flex items-center justify-between">
@@ -189,7 +258,136 @@ export default function AdminServicesPage() {
           onAssigned={() => { setAssigning(null); refresh(); }}
         />
       )}
+
+      {mandating && (
+        <MandateModal
+          request={mandating}
+          onClose={() => setMandating(null)}
+          onSaved={() => { setMandating(null); refresh(); }}
+        />
+      )}
     </DashboardLayout>
+  );
+}
+
+function MandateModal({ request, onClose, onSaved }: { request: ServiceRequestWithDetails; onClose: () => void; onSaved: () => void }) {
+  const [form, setForm] = useState({
+    title: `${request.gap.gapTitle} — Service Mandate`,
+    scope: "",
+    deliverables: "",
+    timeline: "",
+    price: request.priceAgreed?.replace(/[^0-9.]/g, "") ?? "",
+    adminNotes: "",
+  });
+  const [step, setStep] = useState<"edit" | "preview">("edit");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setForm(f => ({ ...f, [k]: e.target.value }));
+
+  async function saveDraft() {
+    if (!form.title || !form.scope || !form.deliverables || !form.timeline || !form.price) {
+      setError("Please fill in all fields."); return;
+    }
+    setSubmitting(true); setError("");
+    try {
+      await serviceApi.saveMandate(request.id, { ...form, price: Number(form.price) });
+      setStep("preview");
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Could not save mandate.");
+    } finally { setSubmitting(false); }
+  }
+
+  async function sendToSme() {
+    setSubmitting(true); setError("");
+    try {
+      await serviceApi.saveMandate(request.id, { ...form, price: Number(form.price) });
+      await serviceApi.sendMandate(request.id);
+      onSaved();
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Could not send mandate.");
+    } finally { setSubmitting(false); }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-navy-950/80 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="px-6 sm:px-8 pt-6 pb-4 border-b border-gray-100">
+          <p className="text-[10px] font-black text-violet-600 uppercase tracking-widest mb-1">{request.gap.section}</p>
+          <h2 className="text-xl font-extrabold text-navy-900">Create Mandate</h2>
+          <p className="text-gray-500 text-sm mt-1">{request.gap.gapTitle} · {request.smeBusinessOwner?.firstName} {request.smeBusinessOwner?.lastName}</p>
+        </div>
+
+        {step === "edit" ? (
+          <div className="p-6 sm:p-8 space-y-4">
+            <div>
+              <p className="text-sm font-semibold text-navy-900 mb-1.5">Mandate Title</p>
+              <input value={form.title} onChange={set("title")} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-navy-900 mb-1.5">Scope of Work</p>
+              <p className="text-[11px] text-gray-400 mb-1.5">What the provider will do. Be specific.</p>
+              <textarea value={form.scope} onChange={set("scope")} rows={4} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors resize-none" placeholder="e.g. Register the business with CAC as a Business Name, obtain RC number, provide certified copy of certificate..." />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-navy-900 mb-1.5">Deliverables</p>
+              <textarea value={form.deliverables} onChange={set("deliverables")} rows={3} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors resize-none" placeholder="e.g. Certified CAC certificate, RC number, stamped copy for records..." />
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm font-semibold text-navy-900 mb-1.5">Timeline</p>
+                <input value={form.timeline} onChange={set("timeline")} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors" placeholder="e.g. 5 working days" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-navy-900 mb-1.5">Agreed Price (₦)</p>
+                <input type="number" min="0" value={form.price} onChange={set("price")} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors" placeholder="15000" />
+              </div>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-navy-900 mb-1.5">Internal Notes (not shown to SME)</p>
+              <textarea value={form.adminNotes} onChange={set("adminNotes")} rows={2} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors resize-none" placeholder="Any internal context for the team..." />
+            </div>
+            {error && <p className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-xl px-4 py-3">{error}</p>}
+            <div className="flex gap-3 pt-2">
+              <button onClick={onClose} className="border border-gray-200 text-gray-500 font-semibold px-5 py-3 rounded-xl text-sm">Cancel</button>
+              <button onClick={saveDraft} disabled={submitting} className="flex-1 bg-violet-600 hover:bg-violet-700 disabled:opacity-60 text-white font-bold py-3 rounded-xl text-sm transition-all">
+                {submitting ? "Saving…" : "Preview Mandate →"}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="p-6 sm:p-8">
+            <div className="bg-gray-50 rounded-2xl p-6 mb-6 space-y-4 border border-gray-200">
+              <h3 className="font-extrabold text-navy-900 text-lg border-b border-gray-200 pb-3">{form.title}</h3>
+              {[
+                { label: "Scope of Work", val: form.scope },
+                { label: "Deliverables", val: form.deliverables },
+                { label: "Timeline", val: form.timeline },
+              ].map((s) => (
+                <div key={s.label}>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{s.label}</p>
+                  <p className="text-sm text-gray-700 leading-relaxed">{s.val}</p>
+                </div>
+              ))}
+              <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                <p className="text-sm font-semibold text-gray-500">Agreed Price</p>
+                <p className="text-lg font-extrabold text-navy-900">₦{Number(form.price).toLocaleString()}</p>
+              </div>
+              <p className="text-[11px] text-gray-400 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
+                By clicking "Sign & Approve", the SME confirms they agree to this scope, price, and timeline.
+              </p>
+            </div>
+            {error && <p className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4">{error}</p>}
+            <div className="flex gap-3">
+              <button onClick={() => setStep("edit")} className="border border-gray-200 text-gray-500 font-semibold px-5 py-3 rounded-xl text-sm">Edit</button>
+              <button onClick={sendToSme} disabled={submitting} className="flex-1 bg-navy-900 hover:bg-red-500 disabled:opacity-60 text-white font-bold py-3 rounded-xl text-sm transition-all">
+                {submitting ? "Sending…" : "Send to SME →"}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 

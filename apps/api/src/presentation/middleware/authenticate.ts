@@ -46,3 +46,14 @@ export function requireRoles(...roles: UserRole[]) {
     next();
   };
 }
+
+/** Guards routes that only a Super Admin (ADMIN + isSuperAdmin=true) can access. */
+export function requireSuperAdmin() {
+  return function (req: Request, _res: Response, next: NextFunction): void {
+    if (!req.user) return next(new UnauthorizedError());
+    if (req.user.role !== "ADMIN" || !req.user.isSuperAdmin) {
+      return next(new ForbiddenError("Super Admin access required"));
+    }
+    next();
+  };
+}
