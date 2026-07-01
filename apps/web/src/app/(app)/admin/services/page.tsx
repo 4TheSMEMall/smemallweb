@@ -391,14 +391,121 @@ function MandateModal({ request, onClose, onSaved }: { request: ServiceRequestWi
   );
 }
 
+// ── Service catalogue — maps directly to the BHC gap-engine service tags ─────
+const SERVICE_CATALOG = [
+  {
+    pillar: "Legal",
+    dot: "bg-blue-500",
+    badge: "text-blue-700 bg-blue-50 border-blue-200",
+    services: [
+      { tag: "cac_filing",           label: "CAC Business Registration" },
+      { tag: "legal_consulting",     label: "Legal Consulting" },
+      { tag: "licensing_compliance", label: "Licences & Permits" },
+      { tag: "ip_legal",             label: "IP & Trademark" },
+    ],
+  },
+  {
+    pillar: "Finance & Accounting",
+    dot: "bg-emerald-500",
+    badge: "text-emerald-700 bg-emerald-50 border-emerald-200",
+    services: [
+      { tag: "bookkeeping",         label: "Bookkeeping Setup" },
+      { tag: "audit",               label: "Audit & Accounts" },
+      { tag: "financial_advisory",  label: "Financial Advisory" },
+      { tag: "tax_filing",          label: "Tax Filing" },
+      { tag: "compliance_advisory", label: "Regulatory Compliance" },
+    ],
+  },
+  {
+    pillar: "Human Resources",
+    dot: "bg-purple-500",
+    badge: "text-purple-700 bg-purple-50 border-purple-200",
+    services: [
+      { tag: "hr_consulting", label: "HR Consulting" },
+    ],
+  },
+  {
+    pillar: "Marketing & Branding",
+    dot: "bg-pink-500",
+    badge: "text-pink-700 bg-pink-50 border-pink-200",
+    services: [
+      { tag: "branding_design",    label: "Branding & Design" },
+      { tag: "marketing_strategy", label: "Marketing Strategy" },
+      { tag: "digital_marketing",  label: "Digital Marketing" },
+    ],
+  },
+  {
+    pillar: "Business Advisory",
+    dot: "bg-amber-500",
+    badge: "text-amber-700 bg-amber-50 border-amber-200",
+    services: [
+      { tag: "business_planning",     label: "Business Plan Writing" },
+      { tag: "business_advisory",     label: "Business Advisory" },
+      { tag: "operations_consulting", label: "Operations Consulting" },
+    ],
+  },
+  {
+    pillar: "Technology",
+    dot: "bg-cyan-500",
+    badge: "text-cyan-700 bg-cyan-50 border-cyan-200",
+    services: [
+      { tag: "web_design",          label: "Website Design" },
+      { tag: "digital_tools_setup", label: "Digital Tools Setup" },
+    ],
+  },
+] as const;
+
+type ServiceTag = typeof SERVICE_CATALOG[number]["services"][number]["tag"];
+
+function ServiceTagPicker({ selected, onChange }: { selected: string[]; onChange: (tags: string[]) => void }) {
+  function toggle(tag: string) {
+    onChange(selected.includes(tag) ? selected.filter((t) => t !== tag) : [...selected, tag]);
+  }
+  return (
+    <div className="space-y-3">
+      {SERVICE_CATALOG.map((group) => (
+        <div key={group.pillar} className="border border-gray-100 rounded-xl overflow-hidden">
+          <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border-b border-gray-100">
+            <span className={`w-2 h-2 rounded-full ${group.dot} flex-shrink-0`} />
+            <span className="text-[11px] font-black text-gray-600 uppercase tracking-widest">{group.pillar}</span>
+          </div>
+          <div className="flex flex-wrap gap-2 p-3">
+            {group.services.map((svc) => {
+              const active = selected.includes(svc.tag);
+              return (
+                <button
+                  key={svc.tag}
+                  type="button"
+                  onClick={() => toggle(svc.tag)}
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${
+                    active
+                      ? `${group.badge} border`
+                      : "text-gray-500 bg-white border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  {active && "✓ "}{svc.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function AddProviderModal({ onClose, onCreated }: { onClose: () => void; onCreated: (businessName: string, tempPassword: string) => void }) {
-  const [form, setForm] = useState({ businessName: "", firstName: "", lastName: "", contactEmail: "", contactPhone: "", serviceTags: "" });
+  const [form, setForm] = useState({ businessName: "", firstName: "", lastName: "", contactEmail: "", contactPhone: "" });
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   async function submit() {
-    setSubmitting(true);
-    setError("");
+    if (!form.businessName || !form.firstName || !form.lastName || !form.contactEmail || !form.contactPhone) {
+      setError("Please fill in all contact fields."); return;
+    }
+    if (selectedTags.length === 0) { setError("Select at least one service this provider offers."); return; }
+    setSubmitting(true); setError("");
     try {
       const res = await serviceApi.createProvider({
         businessName: form.businessName,
@@ -406,48 +513,67 @@ function AddProviderModal({ onClose, onCreated }: { onClose: () => void; onCreat
         lastName: form.lastName,
         contactEmail: form.contactEmail,
         contactPhone: form.contactPhone,
-        serviceTags: form.serviceTags.split(",").map((t) => t.trim()).filter(Boolean),
+        serviceTags: selectedTags,
       });
       onCreated(res.data.data!.provider.businessName, res.data.data!.tempPassword);
     } catch (err: unknown) {
       setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Could not create provider.");
-    } finally {
-      setSubmitting(false);
-    }
+    } finally { setSubmitting(false); }
   }
+
+  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm(f => ({ ...f, [k]: e.target.value }));
 
   return (
     <div className="fixed inset-0 z-50 bg-navy-950/80 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 sm:p-8">
-        <h2 className="text-xl font-extrabold text-navy-900 mb-1">Add Service Provider</h2>
-        <p className="text-gray-500 text-sm mb-6">Creates a login account (role: Provider) plus their provider profile.</p>
-
-        <div className="space-y-3 mb-5">
-          <input placeholder="Business name" value={form.businessName} onChange={(e) => setForm({ ...form, businessName: e.target.value })}
-            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors" />
-          <div className="grid grid-cols-2 gap-3">
-            <input placeholder="First name" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-              className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors" />
-            <input placeholder="Last name" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-              className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors" />
-          </div>
-          <input placeholder="Contact email" type="email" value={form.contactEmail} onChange={(e) => setForm({ ...form, contactEmail: e.target.value })}
-            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors" />
-          <input placeholder="Contact phone" value={form.contactPhone} onChange={(e) => setForm({ ...form, contactPhone: e.target.value })}
-            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors" />
-          <input placeholder="Service tags, comma separated (e.g. cac_filing, bookkeeping)" value={form.serviceTags} onChange={(e) => setForm({ ...form, serviceTags: e.target.value })}
-            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors" />
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="px-6 sm:px-8 pt-6 pb-4 border-b border-gray-100">
+          <h2 className="text-xl font-extrabold text-navy-900 mb-1">Add Service Provider</h2>
+          <p className="text-gray-500 text-sm">Creates a login account (role: Provider) plus their provider profile.</p>
         </div>
 
-        {error && <p className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4">{error}</p>}
+        <div className="p-6 sm:p-8 space-y-4">
+          {/* Basic info */}
+          <div>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Provider Details</p>
+            <div className="space-y-3">
+              <input placeholder="Business name" value={form.businessName} onChange={set("businessName")}
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors" />
+              <div className="grid grid-cols-2 gap-3">
+                <input placeholder="First name" value={form.firstName} onChange={set("firstName")}
+                  className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors" />
+                <input placeholder="Last name" value={form.lastName} onChange={set("lastName")}
+                  className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors" />
+              </div>
+              <input placeholder="Contact email (used to log in)" type="email" value={form.contactEmail} onChange={set("contactEmail")}
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors" />
+              <input placeholder="Contact phone" value={form.contactPhone} onChange={set("contactPhone")}
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors" />
+            </div>
+          </div>
 
-        <div className="flex gap-3">
-          <button onClick={onClose} className="border border-gray-200 hover:border-gray-300 text-gray-500 hover:text-navy-900 font-semibold px-5 py-3 rounded-xl transition-all text-sm">
-            Cancel
-          </button>
-          <button onClick={submit} disabled={submitting} className="flex-1 bg-navy-900 hover:bg-navy-800 disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-all text-sm">
-            {submitting ? "Creating…" : "Create Provider"}
-          </button>
+          {/* Service catalogue picker */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Services Offered</p>
+              {selectedTags.length > 0 && (
+                <span className="text-[10px] font-bold text-navy-900 bg-navy-900/5 px-2 py-0.5 rounded-full">
+                  {selectedTags.length} selected
+                </span>
+              )}
+            </div>
+            <ServiceTagPicker selected={selectedTags} onChange={setSelectedTags} />
+          </div>
+
+          {error && <p className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-xl px-4 py-3">{error}</p>}
+
+          <div className="flex gap-3 pt-1">
+            <button onClick={onClose} className="border border-gray-200 hover:border-gray-300 text-gray-500 font-semibold px-5 py-3 rounded-xl text-sm">
+              Cancel
+            </button>
+            <button onClick={submit} disabled={submitting} className="flex-1 bg-navy-900 hover:bg-navy-800 disabled:opacity-60 text-white font-bold py-3 rounded-xl text-sm transition-all">
+              {submitting ? "Creating…" : "Create Provider"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -480,7 +606,19 @@ function AssignProviderModal({ request, providers, onClose, onAssigned }: {
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const activeProviders = providers.filter((p) => p.active);
+  const gapTag = request.gap.serviceTag;
+  const active = providers.filter((p) => p.active);
+
+  // Split into matched (can handle this gap type) and others
+  const matched = gapTag ? active.filter((p) => p.serviceTags.includes(gapTag)) : [];
+  const others  = active.filter((p) => !matched.includes(p));
+
+  // Find the human-readable label for the gap's service tag
+  const tagLabel = gapTag
+    ? (SERVICE_CATALOG as unknown as { pillar: string; services: { tag: string; label: string }[] }[])
+        .flatMap((g) => g.services)
+        .find((s) => s.tag === gapTag)?.label ?? gapTag
+    : null;
 
   async function submit() {
     if (!providerId) return;
@@ -488,34 +626,43 @@ function AssignProviderModal({ request, providers, onClose, onAssigned }: {
     try {
       await serviceApi.assignServiceRequest(request.id, providerId, price || undefined, notes || undefined);
       onAssigned();
-    } finally {
-      setSubmitting(false);
-    }
+    } finally { setSubmitting(false); }
   }
 
   return (
     <div className="fixed inset-0 z-50 bg-navy-950/80 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 sm:p-8">
         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{request.gap.section} · {request.gap.priority}</p>
-        <h2 className="text-xl font-extrabold text-navy-900 mb-5">{request.gap.gapTitle}</h2>
-
-        <p className="text-sm font-semibold text-navy-900 mb-2">Assign provider</p>
-        <select
-          value={providerId}
-          onChange={(e) => setProviderId(e.target.value)}
-          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors mb-4"
-        >
-          <option value="">Select a provider…</option>
-          {activeProviders.map((p) => (
-            <option key={p.id} value={p.id}>{p.businessName} — ★ {p.avgRating.toFixed(1)}</option>
-          ))}
-        </select>
-
-        {activeProviders.length === 0 && (
-          <p className="text-amber-700 text-xs bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-4">
-            No active providers yet. Add one from the directory first.
-          </p>
+        <h2 className="text-xl font-extrabold text-navy-900 mb-1">{request.gap.gapTitle}</h2>
+        {tagLabel && (
+          <p className="text-xs text-gray-400 mb-5">Needs: <span className="font-semibold text-navy-900">{tagLabel}</span></p>
         )}
+
+        <div className="space-y-2 mb-4 max-h-60 overflow-y-auto pr-1">
+          {active.length === 0 && (
+            <p className="text-amber-700 text-xs bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+              No active providers yet. Add one from the directory first.
+            </p>
+          )}
+
+          {matched.length > 0 && (
+            <p className="text-[9px] font-black text-emerald-700 uppercase tracking-widest mb-1.5">
+              ✓ Matched for this service
+            </p>
+          )}
+          {matched.map((p) => (
+            <ProviderCard key={p.id} provider={p} selected={providerId === p.id} onSelect={() => setProviderId(p.id)} isMatch />
+          ))}
+
+          {others.length > 0 && (
+            <p className={`text-[9px] font-black text-gray-400 uppercase tracking-widest ${matched.length > 0 ? "mt-3" : ""} mb-1.5`}>
+              {matched.length > 0 ? "Other providers" : "Available providers"}
+            </p>
+          )}
+          {others.map((p) => (
+            <ProviderCard key={p.id} provider={p} selected={providerId === p.id} onSelect={() => setProviderId(p.id)} isMatch={false} />
+          ))}
+        </div>
 
         <input placeholder="Agreed price (optional, e.g. ₦15,000)" value={price} onChange={(e) => setPrice(e.target.value)}
           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors mb-3" />
@@ -523,15 +670,51 @@ function AssignProviderModal({ request, providers, onClose, onAssigned }: {
           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy-900 transition-colors mb-5 resize-none" />
 
         <div className="flex gap-3">
-          <button onClick={onClose} className="border border-gray-200 hover:border-gray-300 text-gray-500 hover:text-navy-900 font-semibold px-5 py-3 rounded-xl transition-all text-sm">
+          <button onClick={onClose} className="border border-gray-200 hover:border-gray-300 text-gray-500 font-semibold px-5 py-3 rounded-xl text-sm">
             Cancel
           </button>
-          <button onClick={submit} disabled={!providerId || submitting} className="flex-1 bg-navy-900 hover:bg-navy-800 disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-all text-sm">
+          <button onClick={submit} disabled={!providerId || submitting} className="flex-1 bg-navy-900 hover:bg-navy-800 disabled:opacity-60 text-white font-bold py-3 rounded-xl text-sm transition-all">
             {submitting ? "Assigning…" : "Assign →"}
           </button>
         </div>
       </div>
     </div>
+  );
+}
+
+function ProviderCard({ provider, selected, onSelect, isMatch }: {
+  provider: Provider; selected: boolean; onSelect: () => void; isMatch: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={`w-full text-left flex items-center gap-3 p-3 rounded-xl border transition-all ${
+        selected
+          ? "border-navy-900 bg-navy-900/[0.04]"
+          : "border-gray-100 hover:border-gray-200 bg-white"
+      }`}
+    >
+      <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 ${
+        selected ? "bg-navy-900 text-white" : "bg-gray-100 text-gray-500"
+      }`}>
+        {provider.businessName.slice(0, 2).toUpperCase()}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-sm font-bold text-navy-900 truncate">{provider.businessName}</span>
+          {isMatch && <span className="text-[9px] font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full">Match</span>}
+        </div>
+        <div className="flex items-center gap-2 mt-0.5">
+          <span className="text-[10px] text-gray-400">★ {provider.avgRating.toFixed(1)} · {provider.reviewCount} review{provider.reviewCount !== 1 ? "s" : ""}</span>
+        </div>
+      </div>
+      {selected && (
+        <div className="w-4 h-4 rounded-full bg-navy-900 flex items-center justify-center flex-shrink-0">
+          <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+        </div>
+      )}
+    </button>
   );
 }
 
